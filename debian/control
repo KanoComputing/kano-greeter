@@ -7,7 +7,7 @@ Build-Depends: debhelper (>=9.0.0)
 
 Package: kano-greeter
 Architecture: all
-Depends: ${misc:Depends}, kano-desktop, kdesk
+Depends: ${misc:Depends}, kano-desktop (<< 1.1-4.20141110), kdesk
 Replaces: kano-desktop (<< 1.1-3.20141030)
 Breaks: kano-desktop (<< 1.1-3.20141030)
 Description: Python greeter for Kano OS

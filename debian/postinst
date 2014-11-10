@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# postinst
+#
+# Copyright (C) 2014 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+
+case "$1" in
+    configure)
+
+        # Switch to use the Kano Greeter
+        sed -i 's/^\s*\(greeter-session\=\).*/\1kano-greeter/' "$lightdm_config"
+
+        # Create bin link to the Kano Greeter
+        ln -s /usr/share/kano-desktop/kano-greeter/kano-greeter.py /usr/bin/kano-greeter
+
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0
