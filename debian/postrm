@@ -7,19 +7,12 @@
 #
 
 lightdm_config=/etc/lightdm/lightdm.conf
-lightdm_kdeskrc=/var/lib/lightdm/.kdeskrc
 
 case "$1" in
     remove|upgrade)
 
         # Revert to the default greeter
         sed -i 's/^\s*\(greeter-session\=\).*/\1lightdm-greeter/' "$lightdm_config"
-
-        # Remove links
-        rm -f /usr/bin/kano-greeter
-
-        # Remove LightDM kdesk config
-        rm -f $lightdm_kdeskrc
 
         ;;
 esac
