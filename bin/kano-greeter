@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+# kano-greeter
+#
+# Copyright (C) 2014 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+
+from gi.repository import Gtk
+import os
+import sys
+
+from kano.gtk3.apply_styles import apply_styling_to_screen
+
+if __name__ == '__main__' and __package__ is None:
+    dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if dir_path != '/usr':
+        sys.path.insert(1, dir_path)
+    else:
+        dir_path = '/usr/share/kano-greeter'
+
+from kano.logging import logger
+from kano_greeter.greeter_window import GreeterWindow
+
+
+if __name__ == '__main__':
+    try:
+        # Refresh the wallpaper
+        os.system('kdesk -w')
+
+        apply_styling_to_screen(
+            os.path.join(dir_path, 'media', 'css', 'kano-greeter.css'))
+
+        WIN = GreeterWindow()
+        WIN.show_all()
+
+        Gtk.main()
+    except Exception as e:
+        logger.error(e)
