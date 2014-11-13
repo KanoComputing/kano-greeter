@@ -2,6 +2,9 @@
 
 Python greeter for Kano OS. Uses LightDM to handle user sessions.
 
+![Main Greeter Screen](https://cloud.githubusercontent.com/assets/5371014/4885460/bc09eb72-6374-11e4-84e1-ac6115f28404.png)
+![Password Entry Screen](https://cloud.githubusercontent.com/assets/5371014/4885461/bc0a2b8c-6374-11e4-982b-497245e69330.png)
+
 ## Installation
 
 To install
