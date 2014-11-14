@@ -7,7 +7,7 @@
 
 
 table Config
-    Background.File-medium: /usr/share/kano-desktop/wallpapers/greeter-background-1024.png
-    Background.File-4-3: /usr/share/kano-desktop/wallpapers/greeter-background-4-3.png
-    Background.File-16-9: /usr/share/kano-desktop/wallpapers/greeter-background-16-9.png
+    Background.File-medium: /usr/share/kano-greeter/wallpapers/greeter-background-1024.png
+    Background.File-4-3: /usr/share/kano-greeter/wallpapers/greeter-background-4-3.png
+    Background.File-16-9: /usr/share/kano-greeter/wallpapers/greeter-background-16-9.png
 end
