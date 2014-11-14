@@ -9,8 +9,12 @@
 from gi.repository import Gtk
 from gi.repository import LightDM
 
+import os
+
 from kano.logging import logger
 from kano.gtk3.heading import Heading
+from kano.gtk3.buttons import OrangeButton
+from kano.gtk3.kano_dialog import KanoDialog
 
 
 class UserList(Gtk.ScrolledWindow):
@@ -31,6 +35,10 @@ class UserList(Gtk.ScrolledWindow):
 
         self._populate()
 
+        add_account_btn = OrangeButton('Add Account')
+        add_account_btn.connect('button-release-event', self.add_account)
+        self.box.pack_start(add_account_btn, False, False, 0)
+
     def _populate(self):
         # Populate list
         user_list = LightDM.UserList()
@@ -41,6 +49,22 @@ class UserList(Gtk.ScrolledWindow):
     def add_item(self, username):
         user = User(username)
         self.box.pack_start(user, False, False, 0)
+
+    @staticmethod
+    def add_account(*_):
+        confirm = KanoDialog(
+            title_text='Are you sure you want to create a new account?',
+            description_text='A reboot will be required',
+            button_dict={
+                'CREATE': {'return_value': True},
+                'CANCEL': {'return_value': False}
+            })
+        confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+
+        if confirm.run():
+            os.system("kano-init newuser")
+            LightDM.restart()
+
 
 
 class User(Gtk.EventBox):

@@ -9,8 +9,10 @@
 from gi.repository import Gtk
 from gi.repository import LightDM
 
+import os
+
 from kano.logging import logger
-from kano.gtk3.buttons import KanoButton
+from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.heading import Heading
 from kano.gtk3.kano_dialog import KanoDialog
 
@@ -40,6 +42,10 @@ class PasswordView(Gtk.Grid):
         self.login_btn = KanoButton('LOGIN')
         self.login_btn.connect('button-release-event', self._login_cb)
         self.attach(self.login_btn, 0, 2, 1, 1)
+
+        delete_account_btn = OrangeButton('Remove Account')
+        delete_account_btn.connect('button-release-event', self.delete_user)
+        self.attach(delete_account_btn, 0, 3, 1, 1)
 
     def _reset_greeter(self):
         PasswordView.greeter = PasswordView.greeter.new()
@@ -96,3 +102,34 @@ class PasswordView(Gtk.Grid):
                            parent_window=self.get_toplevel())
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
+
+    def delete_user(self, *_):
+        import pam
+
+        password_input = Gtk.Entry()
+        password_input.set_visibility(False)
+        password_input.set_alignment(0.5)
+
+        confirm = KanoDialog(
+            title_text='Are you sure you want to delete {}\'s account?'.format(
+                self.user),
+            description_text='A reboot will be required',
+            widget=password_input,
+            button_dict={
+                'DELETE': {'return_value': True},
+                'CANCEL': {'return_value': False}
+            })
+        confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+
+        if not confirm.run():
+            return
+
+        password = password_input.get_text()
+
+        if pam.authenticate(self.user, password):
+            os.system('kano-init deleteuser {}'.format(self.user))
+            LightDM.restart()
+        else:
+            error = KanoDialog(title_text='Incorrect password')
+            error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+            error.run()
