@@ -127,7 +127,7 @@ class PasswordView(Gtk.Grid):
         password = password_input.get_text()
 
         if pam.authenticate(self.user, password):
-            os.system('kano-init deleteuser {}'.format(self.user))
+            os.system('sudo kano-init deleteuser {}'.format(self.user))
             LightDM.restart()
         else:
             error = KanoDialog(title_text='Incorrect password')

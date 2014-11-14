@@ -7,12 +7,16 @@
 #
 
 lightdm_config=/etc/lightdm/lightdm.conf
+kano_init_sudoers=/etc/sudoers.d/kano-init_conf
 
 case "$1" in
     remove|upgrade)
 
         # Revert to the default greeter
         sed -i 's/^\s*\(greeter-session\=\).*/\1lightdm-greeter/' "$lightdm_config"
+
+        # Remove LightDM access to kano-init
+        sed -i /^%lightdm/d "$kano_init_sudoers"
 
         ;;
 esac

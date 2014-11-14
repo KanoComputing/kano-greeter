@@ -62,7 +62,7 @@ class UserList(Gtk.ScrolledWindow):
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         if confirm.run():
-            os.system("kano-init newuser")
+            os.system("sudo kano-init newuser")
             LightDM.restart()
 
 
