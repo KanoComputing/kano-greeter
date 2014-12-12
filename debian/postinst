@@ -18,6 +18,9 @@ case "$1" in
         # Allow the greeter to run kano-init
         sed -i '$a%lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-init' "$kano_init_sudoers"
 
+        # Fix permisssions so that lightdm can start the greeter (this actually seems to be a bug in lightm)
+        chown lightdm:lightdm chown lightdm:lightdm /var/lib/lightdm
+
         ;;
 esac
 
