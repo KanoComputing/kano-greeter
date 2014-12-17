@@ -12,17 +12,20 @@ from gi.repository import LightDM
 import os
 
 from kano.logging import logger
+from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.heading import Heading
 from kano.gtk3.buttons import OrangeButton
 from kano.gtk3.kano_dialog import KanoDialog
 
 
-class UserList(Gtk.ScrolledWindow):
-    HEIGHT = 250
+class UserList(ScrolledWindow):
+    HEIGHT = 300
     WIDTH = 250
 
     def __init__(self):
-        Gtk.ScrolledWindow.__init__(self)
+        ScrolledWindow.__init__(self)
+
+        self.apply_styling_to_widget()
 
         self.set_size_request(self.WIDTH, self.HEIGHT)
 
