@@ -32,6 +32,7 @@ if __name__ == '__main__':
         WIN = GreeterWindow()
         WIN.show_all()
 
+        Gtk.Settings.get_default().set_property('gtk-icon-theme-name', 'Kano')
         Gtk.main()
     except Exception as e:
         logger.error(e)
