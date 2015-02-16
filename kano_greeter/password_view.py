@@ -102,6 +102,9 @@ class PasswordView(Gtk.Grid):
                            parent_window=self.get_toplevel())
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
+    
+    def grab_focus(self):
+        self.password.grab_focus()
 
     def delete_user(self, *_):
         import pam
