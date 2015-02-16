@@ -47,14 +47,14 @@ Change the `Exec` parameter in it to the path to the executable (change the path
 to the cloned repo to be just that)
 
 ```
-sudo sed -i 's|^\(Exec\=\).*|\1/path/to/kano-greeter/repo/bin/kano-greeter|' /usr/share/xgreeters/kano-greeter-devel.desktop
+sudo sed -i 's|^\(Exec\=\).*|\1`pwd`/bin/kano-greeter|' /usr/share/xgreeters/kano-greeter-devel.desktop
 ```
 
 Copy the LightDM config file and change the greeter to be the development one
 
 ```
 cp /etc/lightdm/lightdm.conf lightdm-devel.conf
-sudo sed -i 's|^\(greeter-session\=\).*|\1`pwd`/lightdm-devel.conf|' lightdm-devel.conf
+sudo sed -i 's|^\(greeter-session\=\).*|\1kano-greeter-devel|' lightdm-devel.conf
 ```
 
 ## Testing
