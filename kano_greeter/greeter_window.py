@@ -80,6 +80,7 @@ class GreeterWindow(ApplicationWindow):
         password_view = PasswordView(user)
         self.set_main(password_view)
         self.top_bar.enable_prev()
+        password_view.grab_focus()
 
     def _back_cb(self, event, button):
         self.go_to_users()
