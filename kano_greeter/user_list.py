@@ -14,7 +14,7 @@ import os
 from kano.logging import logger
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.heading import Heading
-from kano.gtk3.buttons import OrangeButton
+from kano.gtk3.buttons import OrangeButton, KanoButton
 from kano.gtk3.kano_dialog import KanoDialog
 
 
@@ -70,32 +70,23 @@ class UserList(ScrolledWindow):
 
 
 
-class User(Gtk.EventBox):
+class User(KanoButton):
     HEIGHT = 50
 
     def __init__(self, username):
-        Gtk.EventBox.__init__(self)
+        KanoButton.__init__(self, text=username.title(), color="orange")
         self.set_size_request(-1, self.HEIGHT)
+        self.get_style_context().add_class('user')
 
         self.username = username
 
-        self.get_style_context().add_class('user')
-
-        label = Gtk.Label(username.title())
-        self.add(label)
-
         self.connect('button-release-event', self._user_select_cb)
-        self.connect('enter-notify-event', self._hover_cb)
-        self.connect('leave-notify-event', self._unhover_cb)
+        self.connect('key-release-event', self._user_select_cb)
 
     def _user_select_cb(self, button, event):
-        logger.debug('user {} selected'.format(self.username))
+         # 65293 is the ENTER keycode
+        if not hasattr(event, 'keyval') or event.keyval == 65293:
+            logger.debug('user {} selected'.format(self.username))
+            win = self.get_toplevel()
+            win.go_to_password(self.username)
 
-        win = self.get_toplevel()
-        win.go_to_password(self.username)
-
-    def _hover_cb(self, widget, event):
-        self.get_style_context().add_class('hover')
-
-    def _unhover_cb(self, widget, event):
-        self.get_style_context().remove_class('hover')
