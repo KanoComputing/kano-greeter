@@ -16,6 +16,7 @@ from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.heading import Heading
 from kano.gtk3.kano_dialog import KanoDialog
 
+from kano_greeter.last_user import set_last_user
 
 class PasswordView(Gtk.Grid):
     greeter = LightDM.Greeter()
@@ -86,6 +87,8 @@ class PasswordView(Gtk.Grid):
             'The user {} is authenticated. Starting LightDM X Session'
             .format(self.user))
 
+        set_last_user(self.user)
+        
         if not _greeter.start_session_sync('lightdm-xsession'):
             logger.error('Failed to start session')
         else:

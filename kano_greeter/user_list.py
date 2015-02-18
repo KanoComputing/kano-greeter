@@ -17,6 +17,7 @@ from kano.gtk3.heading import Heading
 from kano.gtk3.buttons import OrangeButton, KanoButton
 from kano.gtk3.kano_dialog import KanoDialog
 
+from kano_greeter.last_user import get_last_user
 
 class UserList(ScrolledWindow):
     HEIGHT = 300
@@ -35,6 +36,8 @@ class UserList(ScrolledWindow):
 
         title = Heading('Select Account', 'Log in to which account?')
         self.box.pack_start(title.container, False, False, 0)
+        
+        self.last_username = get_last_user()
 
         self._populate()
 
@@ -52,6 +55,8 @@ class UserList(ScrolledWindow):
     def add_item(self, username):
         user = User(username)
         self.box.pack_start(user, False, False, 0)
+        if username == self.last_username:
+            user.grab_focus()
 
     @staticmethod
     def add_account(*_):
