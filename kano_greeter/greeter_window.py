@@ -28,7 +28,7 @@ class GreeterWindow(ApplicationWindow):
     def __init__(self):
         apply_common_to_screen()
 
-        ApplicationWindow.__init__(self, 'Login', self.WIDTH, self.HEIGHT)
+        ApplicationWindow.__init__(self, _('Login'), self.WIDTH, self.HEIGHT)
         self.connect("delete-event", Gtk.main_quit)
 
         self.grid = Gtk.Grid()
@@ -37,12 +37,12 @@ class GreeterWindow(ApplicationWindow):
         self.grid.set_column_spacing(30)
         self.grid.set_row_spacing(30)
 
-        self.top_bar = TopBar('Login')
+        self.top_bar = TopBar(_('Login'))
         self._remove_top_bar_buttons()
         self.top_bar.set_size_request(self.WIDTH, -1)
         self.grid.attach(self.top_bar, 0, 0, 3, 1)
 
-        self.shutdown_btn = OrangeButton('Shutdown')
+        self.shutdown_btn = OrangeButton(_('Shutdown'))
         self.shutdown_btn.connect('clicked', self.shutdown)
         align = Gtk.Alignment(xalign=1.0,
                               xscale=0.0)
@@ -86,12 +86,20 @@ class GreeterWindow(ApplicationWindow):
         self.go_to_users()
 
     @staticmethod
-    def shutdown(*_):
-        confirm = KanoDialog(title_text='Are you sure you want to shut down?',
-                             button_dict={
-                                 'OK': {'return_value': True},
-                                 'CANCEL': {'return_value': False}
-                             })
+    def shutdown(*args):
+        confirm = KanoDialog(title_text = _('Are you sure you want to shut down?'),
+                             button_dict= [
+                                {
+                                    'label': _('Cancel').upper(),
+                                    'color': 'red',
+                                    'return_value': False
+                                },
+                                {
+                                    'label': _('OK').upper(),
+                                    'color': 'green',
+                                    'return_value': True
+                                }
+                             ])
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         if confirm.run():

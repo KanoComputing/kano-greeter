@@ -14,6 +14,7 @@ setup(name='Kano Greeter',
       package_data={'kano_greeter': ['media/css/*']},
       data_files=[
           ('/usr/share/kano-greeter/wallpapers', setuptools.findall('wallpapers')),
+          ('/usr/share/locale', setuptools.findall('locale')),
           ('/usr/share/xgreeters', ['config/kano-greeter.desktop']),
           ('/var/lib/lightdm', ['config/.kdeskrc'])
       ]

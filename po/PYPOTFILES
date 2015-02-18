@@ -1,0 +1,4 @@
+../bin/kano-greeter
+../kano_greeter/greeter_window.py
+../kano_greeter/password_view.py
+../kano_greeter/user_list.py
