@@ -79,14 +79,10 @@ class User(KanoButton):
         self.get_style_context().add_class('user')
 
         self.username = username
+        self.connect('clicked', self._user_select_cb)
 
-        self.connect('button-release-event', self._user_select_cb)
-        self.connect('key-release-event', self._user_select_cb)
-
-    def _user_select_cb(self, button, event):
-         # 65293 is the ENTER keycode
-        if not hasattr(event, 'keyval') or event.keyval == 65293:
-            logger.debug('user {} selected'.format(self.username))
-            win = self.get_toplevel()
-            win.go_to_password(self.username)
+    def _user_select_cb(self, button):
+        logger.debug('user {} selected'.format(self.username))
+        win = self.get_toplevel()
+        win.go_to_password(self.username)
 
