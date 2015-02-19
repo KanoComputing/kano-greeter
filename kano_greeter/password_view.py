@@ -41,11 +41,11 @@ class PasswordView(Gtk.Grid):
         self.attach(self.password, 0, 1, 1, 1)
 
         self.login_btn = KanoButton('LOGIN')
-        self.login_btn.connect('button-release-event', self._login_cb)
+        self.login_btn.connect('clicked', self._login_cb)
         self.attach(self.login_btn, 0, 2, 1, 1)
 
         delete_account_btn = OrangeButton('Remove Account')
-        delete_account_btn.connect('button-release-event', self.delete_user)
+        delete_account_btn.connect('clicked', self.delete_user)
         self.attach(delete_account_btn, 0, 3, 1, 1)
 
     def _reset_greeter(self):

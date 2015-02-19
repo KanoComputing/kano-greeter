@@ -42,7 +42,7 @@ class UserList(ScrolledWindow):
         self._populate()
 
         add_account_btn = OrangeButton('Add Account')
-        add_account_btn.connect('button-release-event', self.add_account)
+        add_account_btn.connect('clicked', self.add_account)
         self.box.pack_start(add_account_btn, False, False, 0)
 
     def _populate(self):
