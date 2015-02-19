@@ -88,7 +88,7 @@ class PasswordView(Gtk.Grid):
             .format(self.user))
 
         set_last_user(self.user)
-        
+
         if not _greeter.start_session_sync('lightdm-xsession'):
             logger.error('Failed to start session')
         else:
@@ -105,7 +105,7 @@ class PasswordView(Gtk.Grid):
                            parent_window=self.get_toplevel())
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
-    
+
     def grab_focus(self):
         self.password.grab_focus()
 

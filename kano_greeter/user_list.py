@@ -36,7 +36,7 @@ class UserList(ScrolledWindow):
 
         title = Heading('Select Account', 'Log in to which account?')
         self.box.pack_start(title.container, False, False, 0)
-        
+
         self.last_username = get_last_user()
 
         self._populate()
@@ -79,7 +79,7 @@ class User(KanoButton):
     HEIGHT = 50
 
     def __init__(self, username):
-        KanoButton.__init__(self, text=username.title(), color="orange")
+        KanoButton.__init__(self, text=username.title(), color='orange')
         self.set_size_request(-1, self.HEIGHT)
         self.get_style_context().add_class('user')
 
