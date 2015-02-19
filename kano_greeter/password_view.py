@@ -34,19 +34,22 @@ class PasswordView(Gtk.Grid):
                         'If you haven\'t changed your password,\n'
                         'use "kano"')
         self.attach(title.container, 0, 0, 1, 1)
+        self.label = Gtk.Label(user)
+        self.label.get_style_context().add_class('login')
+        self.attach(self.label, 0, 1, 1, 1)
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
         self.password.set_alignment(0.5)
         self.password.connect('activate', self._login_cb)
-        self.attach(self.password, 0, 1, 1, 1)
+        self.attach(self.password, 0, 2, 1, 1)
 
         self.login_btn = KanoButton('LOGIN')
         self.login_btn.connect('clicked', self._login_cb)
-        self.attach(self.login_btn, 0, 2, 1, 1)
+        self.attach(self.login_btn, 0, 3, 1, 1)
 
         delete_account_btn = OrangeButton('Remove Account')
         delete_account_btn.connect('clicked', self.delete_user)
-        self.attach(delete_account_btn, 0, 3, 1, 1)
+        self.attach(delete_account_btn, 0, 4, 1, 1)
 
     def _reset_greeter(self):
         PasswordView.greeter = PasswordView.greeter.new()
