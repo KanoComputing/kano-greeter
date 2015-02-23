@@ -81,7 +81,6 @@ class User(KanoButton):
     def __init__(self, username):
         KanoButton.__init__(self, text=username.title(), color='orange')
         self.set_size_request(-1, self.HEIGHT)
-        self.get_style_context().add_class('user')
 
         self.username = username
         self.connect('clicked', self._user_select_cb)
