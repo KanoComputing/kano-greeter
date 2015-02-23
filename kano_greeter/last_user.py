@@ -2,7 +2,7 @@
 
 import os
 
-LAST_USER_PATH = '/var/lib/kano-greeter'
+LAST_USER_PATH = '/var/lib/lightdm/.cache/kano-greeter'
 LAST_USER_FILE = os.path.join(LAST_USER_PATH, 'last-user')
 
 def get_last_user():
