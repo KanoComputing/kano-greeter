@@ -2,6 +2,21 @@
 
 from distutils.core import setup
 import setuptools
+import os
+
+def get_locales():
+    locale_dir = 'locale'
+    locales = []
+
+    for dirpath, dirnames, filenames in os.walk(locale_dir):
+        for filename in filenames:
+            locales.append(
+                (os.path.join('/usr/share', dirpath, filename),
+                 [os.path.join(dirpath, filename)])
+            )
+
+    return locales
+
 
 setup(name='Kano Greeter',
       version='1.0',
@@ -14,8 +29,7 @@ setup(name='Kano Greeter',
       package_data={'kano_greeter': ['media/css/*']},
       data_files=[
           ('/usr/share/kano-greeter/wallpapers', setuptools.findall('wallpapers')),
-          ('/usr/share/locale', setuptools.findall('locale')),
           ('/usr/share/xgreeters', ['config/kano-greeter.desktop']),
           ('/var/lib/lightdm', ['config/.kdeskrc'])
-      ]
+      ] + get_locales()
      )
