@@ -14,9 +14,10 @@ import os
 from kano.logging import logger
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.heading import Heading
-from kano.gtk3.buttons import OrangeButton
+from kano.gtk3.buttons import OrangeButton, KanoButton
 from kano.gtk3.kano_dialog import KanoDialog
 
+from kano_greeter.last_user import get_last_user
 
 class UserList(ScrolledWindow):
     HEIGHT = 300
@@ -36,10 +37,12 @@ class UserList(ScrolledWindow):
         title = Heading(_('Select Account'), _('Log in to which account?'))
         self.box.pack_start(title.container, False, False, 0)
 
+        self.last_username = get_last_user()
+
         self._populate()
 
         add_account_btn = OrangeButton(_('Add Account'))
-        add_account_btn.connect('button-release-event', self.add_account)
+        add_account_btn.connect('clicked', self.add_account)
         self.box.pack_start(add_account_btn, False, False, 0)
 
     def _populate(self):
@@ -52,6 +55,8 @@ class UserList(ScrolledWindow):
     def add_item(self, username):
         user = User(username)
         self.box.pack_start(user, False, False, 0)
+        if username == self.last_username:
+            user.grab_focus()
 
     @staticmethod
     def add_account(*args):
@@ -78,32 +83,18 @@ class UserList(ScrolledWindow):
 
 
 
-class User(Gtk.EventBox):
+class User(KanoButton):
     HEIGHT = 50
 
     def __init__(self, username):
-        Gtk.EventBox.__init__(self)
+        KanoButton.__init__(self, text=username.title(), color='orange')
         self.set_size_request(-1, self.HEIGHT)
 
         self.username = username
+        self.connect('clicked', self._user_select_cb)
 
-        self.get_style_context().add_class('user')
-
-        label = Gtk.Label(username.title())
-        self.add(label)
-
-        self.connect('button-release-event', self._user_select_cb)
-        self.connect('enter-notify-event', self._hover_cb)
-        self.connect('leave-notify-event', self._unhover_cb)
-
-    def _user_select_cb(self, button, event):
+    def _user_select_cb(self, button):
         logger.debug('user {} selected'.format(self.username))
-
         win = self.get_toplevel()
         win.go_to_password(self.username)
 
-    def _hover_cb(self, widget, event):
-        self.get_style_context().add_class('hover')
-
-    def _unhover_cb(self, widget, event):
-        self.get_style_context().remove_class('hover')

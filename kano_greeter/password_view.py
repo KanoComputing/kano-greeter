@@ -16,6 +16,7 @@ from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.heading import Heading
 from kano.gtk3.kano_dialog import KanoDialog
 
+from kano_greeter.last_user import set_last_user
 
 class PasswordView(Gtk.Grid):
     greeter = LightDM.Greeter()
@@ -33,19 +34,22 @@ class PasswordView(Gtk.Grid):
                         _('If you haven\'t changed your password,\n'
                         'use "kano"'))
         self.attach(title.container, 0, 0, 1, 1)
+        self.label = Gtk.Label(user)
+        self.label.get_style_context().add_class('login')
+        self.attach(self.label, 0, 1, 1, 1)
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
         self.password.set_alignment(0.5)
         self.password.connect('activate', self._login_cb)
-        self.attach(self.password, 0, 1, 1, 1)
+        self.attach(self.password, 0, 2, 1, 1)
 
         self.login_btn = KanoButton(_('Login').upper())
-        self.login_btn.connect('button-release-event', self._login_cb)
-        self.attach(self.login_btn, 0, 2, 1, 1)
+        self.login_btn.connect('clicked', self._login_cb)
+        self.attach(self.login_btn, 0, 3, 1, 1)
 
         delete_account_btn = OrangeButton(_('Remove Account'))
-        delete_account_btn.connect('button-release-event', self.delete_user)
-        self.attach(delete_account_btn, 0, 3, 1, 1)
+        delete_account_btn.connect('clicked', self.delete_user)
+        self.attach(delete_account_btn, 0, 4, 1, 1)
 
     def _reset_greeter(self):
         PasswordView.greeter = PasswordView.greeter.new()
@@ -86,6 +90,8 @@ class PasswordView(Gtk.Grid):
             'The user {} is authenticated. Starting LightDM X Session'
             .format(self.user))
 
+        set_last_user(self.user)
+
         if not _greeter.start_session_sync('lightdm-xsession'):
             logger.error('Failed to start session')
         else:
@@ -102,7 +108,7 @@ class PasswordView(Gtk.Grid):
                            parent_window=self.get_toplevel())
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
-    
+
     def grab_focus(self):
         self.password.grab_focus()
 
