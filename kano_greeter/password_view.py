@@ -30,9 +30,9 @@ class PasswordView(Gtk.Grid):
         self._reset_greeter()
 
         self.user = user
-        title = Heading('Enter your password',
-                        'If you haven\'t changed your password,\n'
-                        'use "kano"')
+        title = Heading(_('Enter your password'),
+                        _('If you haven\'t changed your password,\n'
+                        'use "kano"'))
         self.attach(title.container, 0, 0, 1, 1)
         self.label = Gtk.Label(user)
         self.label.get_style_context().add_class('login')
@@ -43,11 +43,11 @@ class PasswordView(Gtk.Grid):
         self.password.connect('activate', self._login_cb)
         self.attach(self.password, 0, 2, 1, 1)
 
-        self.login_btn = KanoButton('LOGIN')
+        self.login_btn = KanoButton(_('Login').upper())
         self.login_btn.connect('clicked', self._login_cb)
         self.attach(self.login_btn, 0, 3, 1, 1)
 
-        delete_account_btn = OrangeButton('Remove Account')
+        delete_account_btn = OrangeButton(_('Remove Account'))
         delete_account_btn.connect('clicked', self.delete_user)
         self.attach(delete_account_btn, 0, 4, 1, 1)
 
@@ -82,7 +82,7 @@ class PasswordView(Gtk.Grid):
 
         if not _greeter.get_is_authenticated():
             logger.warn('Could not authenticate user {}'.format(self.user))
-            self._auth_error_cb('Incorrect password (The default is "kano")')
+            self._auth_error_cb(_('Incorrect password (The default is "kano")'))
 
             return
 
@@ -103,7 +103,7 @@ class PasswordView(Gtk.Grid):
         win = self.get_toplevel()
         win.go_to_users()
 
-        error = KanoDialog(title_text='Error Logging In',
+        error = KanoDialog(title_text=_('Error Logging In'),
                            description_text=text,
                            parent_window=self.get_toplevel())
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
@@ -112,7 +112,7 @@ class PasswordView(Gtk.Grid):
     def grab_focus(self):
         self.password.grab_focus()
 
-    def delete_user(self, *_):
+    def delete_user(self, *args):
         import pam
 
         password_input = Gtk.Entry()
@@ -120,14 +120,21 @@ class PasswordView(Gtk.Grid):
         password_input.set_alignment(0.5)
 
         confirm = KanoDialog(
-            title_text='Are you sure you want to delete {}\'s account?'.format(
-                self.user),
-            description_text='A reboot will be required',
+            title_text = _('Are you sure you want to delete {}\'s account?').format(self.user),
+            description_text = _('A reboot will be required'),
             widget=password_input,
-            button_dict={
-                'DELETE': {'return_value': True},
-                'CANCEL': {'return_value': False}
-            })
+            button_dict = [
+                {
+                    'label': _('Cancel').upper(),
+                    'color': 'red',
+                    'return_value': False
+                },
+                {
+                    'label': _('Delete').upper(),
+                    'color': 'green',
+                    'return_value': True
+                }
+            ])
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         if not confirm.run():
@@ -139,6 +146,6 @@ class PasswordView(Gtk.Grid):
             os.system('sudo kano-init deleteuser {}'.format(self.user))
             LightDM.restart()
         else:
-            error = KanoDialog(title_text='Incorrect password')
+            error = KanoDialog(title_text = _('Incorrect password'))
             error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
             error.run()

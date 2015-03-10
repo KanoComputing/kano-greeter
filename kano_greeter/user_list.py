@@ -34,14 +34,14 @@ class UserList(ScrolledWindow):
         self.box.set_spacing(10)
         self.add(self.box)
 
-        title = Heading('Select Account', 'Log in to which account?')
+        title = Heading(_('Select Account'), _('Log in to which account?'))
         self.box.pack_start(title.container, False, False, 0)
 
         self.last_username = get_last_user()
 
         self._populate()
 
-        add_account_btn = OrangeButton('Add Account')
+        add_account_btn = OrangeButton(_('Add Account'))
         add_account_btn.connect('clicked', self.add_account)
         self.box.pack_start(add_account_btn, False, False, 0)
 
@@ -59,14 +59,22 @@ class UserList(ScrolledWindow):
             user.grab_focus()
 
     @staticmethod
-    def add_account(*_):
+    def add_account(*args):
         confirm = KanoDialog(
-            title_text='Are you sure you want to create a new account?',
-            description_text='A reboot will be required',
-            button_dict={
-                'CREATE': {'return_value': True},
-                'CANCEL': {'return_value': False}
-            })
+            title_text = _('Are you sure you want to create a new account?'),
+            description_text = _('A reboot will be required'),
+            button_dict = [
+                {
+                    'label': _('Cancel').upper(),
+                    'color': 'red',
+                    'return_value': False
+                },
+                {
+                    'label': _('Create').upper(),
+                    'color': 'green',
+                    'return_value': True
+                }
+            ])
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         if confirm.run():

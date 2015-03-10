@@ -9,6 +9,7 @@
 from gi.repository import Gtk
 import os
 import sys
+import gettext
 
 from kano.gtk3.apply_styles import apply_styling_to_screen
 
@@ -17,6 +18,11 @@ if __name__ == '__main__' and __package__ is None:
 
     if not DIR_PATH.startswith('/usr'):
         sys.path.insert(1, DIR_PATH)
+        LOCALE_PATH = os.path.join(DIR_PATH, 'locale')
+    else:
+        LOCALE_PATH = None
+
+gettext.install('kano-greeter', LOCALE_PATH, unicode=1)
 
 from kano.logging import logger
 from kano_greeter.paths import CSS_PATH
