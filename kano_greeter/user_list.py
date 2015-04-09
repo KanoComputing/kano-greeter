@@ -58,29 +58,10 @@ class UserList(ScrolledWindow):
         if username == self.last_username:
             user.grab_focus()
 
-    @staticmethod
-    def add_account(*args):
-        confirm = KanoDialog(
-            title_text = _('Are you sure you want to create a new account?'),
-            description_text = _('A reboot will be required'),
-            button_dict = [
-                {
-                    'label': _('Cancel').upper(),
-                    'color': 'red',
-                    'return_value': False
-                },
-                {
-                    'label': _('Create').upper(),
-                    'color': 'green',
-                    'return_value': True
-                }
-            ])
-        confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
-
-        if confirm.run():
-            os.system("sudo kano-init newuser")
-            LightDM.restart()
-
+    def add_account(self, control):
+        logger.debug('opening new user dialog')
+        win = self.get_toplevel()
+        win.go_to_newuser()
 
 
 class User(KanoButton):
@@ -97,4 +78,3 @@ class User(KanoButton):
         logger.debug('user {} selected'.format(self.username))
         win = self.get_toplevel()
         win.go_to_password(self.username)
-
