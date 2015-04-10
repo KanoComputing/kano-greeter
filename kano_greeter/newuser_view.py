@@ -19,6 +19,8 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 
 from kano_world.functions import login as kano_world_authenticate
+from kano_init.user import user_exists, create_user
+from kano.utils import run_cmd
 
 
 class NewUserView(Gtk.Grid):
@@ -94,6 +96,27 @@ class NewUserView(Gtk.Grid):
                                     self._authentication_complete_cb)
         NewUserView.greeter.connect('show-message', self._auth_error_cb)
 
+    def _error_message_box(self, title, description):
+        '''
+        Show a standard error message box
+        '''
+        errormsg=KanoDialog(title_text=title,
+                            description_text=description,
+                            button_dict= [
+                                {
+                                    'label': _('Ok').upper(),
+                                    'color': 'red',
+                                    'return_value': True
+                                    }])
+
+        errormsg.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        errormsg.run()
+
+        # Stop spinner; cleanup view fields
+        self.login_btn.stop_spinner()
+        self.password.set_text('')
+        return
+
     def _btn_login_pressed(self, event=None, button=None):
         '''
         Authenticates against Kano World. If successful synchronizes to a local
@@ -106,9 +129,16 @@ class NewUserView(Gtk.Grid):
         loggedin=False
         reason=''
 
+        # TODO: Disable the "login" button unless these entry fields are non-empty
+        # Collect credentials from the view
+        password=self.password.get_text()
+        username=self.username.get_text()
+        atsign=username.find('@')
+        if atsign:
+            username_plain=username[:atsign]
+
+        # Now try to login to Kano World
         try:
-            username=self.username.get_text()
-            password=self.password.get_text()
             logger.debug('Authenticating user: {} to Kano World'.format(username))
             (loggedin, reason)=kano_world_authenticate(username, password)
             logger.debug('Kano World auth response: {} - {}'.format(loggedin, reason))
@@ -117,30 +147,42 @@ class NewUserView(Gtk.Grid):
             logger.debug('Kano World auth Exception: {}'.format(reason))
             pass
 
-        # Authentication failed, show error message and return to dialog
-        # Note: title is localized, whereas server response text is not
         if not loggedin:
-            errormsg=KanoDialog(title_text = _('Failed to authenticate to Kano World'),
-                                description_text=reason,
-                                button_dict= [
-                                    {
-                                        'label': _('Ok').upper(),
-                                        'color': 'red',
-                                        'return_value': True
-                                    }])
-
-            errormsg.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
-            errormsg.run()
-            self.login_btn.stop_spinner()
-            self.password.set_text('')
+            # Authentication failed, show error message and return to dialog
+            self._error_message_box(title=_('Failed to authenticate to Kano World'), description=reason)
             return
+        else:
+            # We are authenticated: Does the user already exist on this kit?
+            if not user_exists(username_plain):
+                try:
+                    create_user(username_plain)
+                except Exception as e:
+                    title=_("Error synchronizing user {}".format(username_plain))
+                    description=str(e)
+                    self._error_message_box(title, description)
+                    return
 
-        # TODO: We are authenticated: create unix account and force a LightDM login
+                # First time login: Do the synchronization under the new user's security context
+                # FIXME: Do we need to call --sync two times?
+                cmd = 'su - {username} -c "/usr/bin/kano-sync --sync -s"'.format(username=username_plain)
+                run_cmd(cmd)
+                run_cmd(cmd)
+                cmd3 = 'su - {username} -c "/usr/bin/kano-sync --restore -s"'.format(username=username_plain)
+                run_cmd(cmd)
+            else:
+                # Non first login synchronization
+                cmd = '{bin_dir}/kano-sync --sync -s'.format(bin_dir=bin_dir)
+                run_cmd(cmd)
 
-        #NewUserView.greeter.authenticate(self.user)
-        #if PasswordView.greeter.get_is_authenticated():
-        #    logger.debug('User is already authenticated, starting session')
-        #    start_session()
+            title=_("User {} has been created".format(username_plain))
+            description=_("Logging in with the new user !")
+            self._error_message_box(title, description)
+
+            # Tell Lidghtdm to proceed with login session using the new user
+            NewUserView.greeter.authenticate(username_plain)
+            if NewUserView.greeter.get_is_authenticated():
+                logger.debug('User is already authenticated, starting session')
+                start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug('Need to show prompt: {}'.format(text))
