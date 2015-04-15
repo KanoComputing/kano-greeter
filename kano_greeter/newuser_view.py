@@ -19,7 +19,6 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 
 from kano_world.functions import login as kano_world_authenticate
-from kano_init.user import user_exists, create_user
 from kano.utils import run_cmd
 
 
@@ -33,6 +32,10 @@ class NewUserView(Gtk.Grid):
         self.set_row_spacing(5)
 
         self._reset_greeter()
+
+        # Commands needed to synchronize Kano World account with Unix account
+        self.sync_cmd = 'su - {username} -c "/usr/bin/kano-sync --sync -s"'
+        self.sync_restore_cmd = 'su - {username} -c "/usr/bin/kano-sync --restore -s"'
 
         title = Heading(_('Create new user'),
                         _('Synchronize your Kano World\n' \
@@ -131,16 +134,17 @@ class NewUserView(Gtk.Grid):
 
         # TODO: Disable the "login" button unless these entry fields are non-empty
         # Collect credentials from the view
-        password=self.password.get_text()
-        username=self.username.get_text()
-        atsign=username.find('@')
+        self.unix_password=self.password.get_text()
+        self.unix_username=self.username.get_text()
+        atsign=self.unix_username.find('@')
         if atsign:
-            username_plain=username[:atsign]
+            # For if we are in "staging" mode (see /etc/kano-world.conf)
+            self.unix_username=self.unix_username[:atsign]
 
         # Now try to login to Kano World
         try:
-            logger.debug('Authenticating user: {} to Kano World'.format(username))
-            (loggedin, reason)=kano_world_authenticate(username, password)
+            logger.debug('Authenticating user: {} to Kano World'.format(self.username.get_text()))
+            (loggedin, reason)=kano_world_authenticate(self.username.get_text(), self.password.get_text())
             logger.debug('Kano World auth response: {} - {}'.format(loggedin, reason))
         except Exception as e:
             reason=str(e)
@@ -148,62 +152,63 @@ class NewUserView(Gtk.Grid):
             pass
 
         if not loggedin:
-            # Authentication failed, show error message and return to dialog
+            # Kano world auth unauthorized
             self._error_message_box(title=_('Failed to authenticate to Kano World'), description=reason)
             return
         else:
-            # We are authenticated: Does the user already exist on this kit?
-            if not user_exists(username_plain):
-                try:
-                    create_user(username_plain)
-                except Exception as e:
-                    title=_("Error synchronizing user {}".format(username_plain))
-                    description=str(e)
-                    self._error_message_box(title, description)
-                    return
+            # We are authenticated to Kano World: proceed with forcing local user
+            try:
+                # TODO: Call sudoed script to create the user and force password
+                # self.unix_username, self.unix_password
+                createuser_cmd='sudo /usr/bin/kano-greeter-account {} {}'.format(self.unix_username, self.unix_password)
+                _, _, rc = run_cmd(createuser_cmd)
+                if rc==0:
+                    # User created correctly, synchronize
+                    run_cmd(self.sync_cmd.format(username=self.unix_username))
+                    run_cmd(self.sync_cmd.format(username=self.unix_username))
+                    run_cmd(self.sync_restore_cmd.format(username=self.unix_username))
+                elif rc==1:
+                    # User already exists, synchronize
+                    logger.debug('Local user already exists, synchronizing: {} - {}'.format(self.unix_username, reason))
+                    run_cmd(self.sync_cmd.format(username=self.unix_username))
+                created=True
+            except:
+                created=False
 
-                # First time login: Do the synchronization under the new user's security context
-                # FIXME: Do we need to call --sync two times?
-                cmd = 'su - {username} -c "/usr/bin/kano-sync --sync -s"'.format(username=username_plain)
-                run_cmd(cmd)
-                run_cmd(cmd)
-                cmd3 = 'su - {username} -c "/usr/bin/kano-sync --restore -s"'.format(username=username_plain)
-                run_cmd(cmd)
-            else:
-                # Non first login synchronization
-                cmd = '{bin_dir}/kano-sync --sync -s'.format(bin_dir=bin_dir)
-                run_cmd(cmd)
-
-            title=_("User {} has been created".format(username_plain))
-            description=_("Logging in with the new user !")
-            self._error_message_box(title, description)
+            if not created:
+                logger.debug('Error creating new user: {}'.format(self.unix_username))
+                self._error_message_box(title, 'Could not create local user')
+                return
 
             # Tell Lidghtdm to proceed with login session using the new user
-            NewUserView.greeter.authenticate(username_plain)
+            NewUserView.greeter.authenticate(self.unix_username)
             if NewUserView.greeter.get_is_authenticated():
                 logger.debug('User is already authenticated, starting session')
-                start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug('Need to show prompt: {}'.format(text))
         if _greeter.get_in_authentication():
             logger.debug('Sending password to LightDM')
-            _greeter.respond(self.password.get_text())
+            _greeter.respond(self.unix_password)
 
     def _authentication_complete_cb(self, _greeter):
         logger.debug('Authentication process is complete')
 
         if not _greeter.get_is_authenticated():
-            logger.warn('Could not authenticate user {}'.format(self.user))
+            logger.warn('Could not authenticate user {}'.format(self.unix_username))
             self._auth_error_cb(_('Incorrect password (The default is "kano")'))
-
             return
+
+        # New user created and locally authenticated, we are logged in
+        title=_("User {} has been created".format(self.unix_username))
+        description=_("Logging in with the new username: {}".format(self.unix_username))
+        self._error_message_box(title, description)
 
         logger.info(
             'The user {} is authenticated. Starting LightDM X Session'
-            .format(self.user))
+            .format(self.unix_username))
 
-        set_last_user(self.user)
+        set_last_user(self.unix_username)
 
         if not _greeter.start_session_sync('lightdm-xsession'):
             logger.error('Failed to start session')
