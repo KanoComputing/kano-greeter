@@ -25,7 +25,7 @@ setup(name='Kano Greeter',
       author_email='dev@kano.me',
       url='https://github.com/KanoComputing/kano-greeter',
       packages=['kano_greeter'],
-      scripts=['bin/kano-greeter'],
+      scripts=['bin/kano-greeter', 'bin/kano-greeter-account'],
       package_data={'kano_greeter': ['media/css/*']},
       data_files=[
           ('/usr/share/kano-greeter/wallpapers', setuptools.findall('wallpapers')),
