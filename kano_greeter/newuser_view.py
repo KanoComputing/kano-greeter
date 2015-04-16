@@ -37,12 +37,12 @@ class NewUserView(Gtk.Grid):
         self.sync_cmd = 'su - {username} -c "/usr/bin/kano-sync --sync -s"'
         self.sync_restore_cmd = 'su - {username} -c "/usr/bin/kano-sync --restore -s"'
 
-        title = Heading(_('Create new user'),
-                        _('Synchronize your Kano World\n' \
-                          'account, or create a new one.'))
+        title = Heading(_('Add new account'),
+                        _('Synchronize a Kano World\n' \
+                          'user, or create a new account.'))
 
         self.attach(title.container, 0, 0, 1, 1)
-        self.label = Gtk.Label("Use your Kano World email account")
+        self.label = Gtk.Label("Use your Kano World user")
         self.label.get_style_context().add_class('login')
         self.attach(self.label, 0, 1, 1, 1)
 
@@ -158,26 +158,23 @@ class NewUserView(Gtk.Grid):
         else:
             # We are authenticated to Kano World: proceed with forcing local user
             try:
-                # TODO: Call sudoed script to create the user and force password
-                # self.unix_username, self.unix_password
                 createuser_cmd='sudo /usr/bin/kano-greeter-account {} {}'.format(self.unix_username, self.unix_password)
                 _, _, rc = run_cmd(createuser_cmd)
                 if rc==0:
-                    # User created correctly, synchronize
+                    logger.debug('Local user created correctly, synchronizing: {}'.format(self.unix_username))
                     run_cmd(self.sync_cmd.format(username=self.unix_username))
                     run_cmd(self.sync_cmd.format(username=self.unix_username))
                     run_cmd(self.sync_restore_cmd.format(username=self.unix_username))
                 elif rc==1:
-                    # User already exists, synchronize
-                    logger.debug('Local user already exists, synchronizing: {} - {}'.format(self.unix_username, reason))
+                    logger.debug('Local user already exists, synchronizing: {}'.format(self.unix_username))
                     run_cmd(self.sync_cmd.format(username=self.unix_username))
                 created=True
             except:
                 created=False
 
             if not created:
-                logger.debug('Error creating new user: {}'.format(self.unix_username))
-                self._error_message_box(title, 'Could not create local user')
+                logger.debug('Error creating new local user: {}'.format(self.unix_username))
+                self._error_message_box(title, _("Could not create local user"))
                 return
 
             # Tell Lidghtdm to proceed with login session using the new user

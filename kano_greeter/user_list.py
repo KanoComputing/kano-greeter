@@ -41,7 +41,7 @@ class KanoUserList:
                 # This is an interactive user created by Kano
                 interactive_users.append(user.pw_name)
 
-        return interactive_users
+        return sorted(interactive_users, reverse=False)
 
 
 class UserList(ScrolledWindow):

@@ -9,6 +9,10 @@
 # Called from Kano Greeter UI via sudo.
 #
 # TODO: This tool is temporary until kano-init provides a sudoable equivalent approach
+# Return codes:
+#    0=new account created successfully
+#    1=account already exists - password has been forced
+#    2=could not create new account
 #
 
 import sys
@@ -22,8 +26,8 @@ def create_user(username, password):
 
     # User already exists, force password and stop here
     if user_exists(username):
-        forced=force_password(username, password)
-	return 1
+        force_password(username, password)
+        return 1
 
     # Add the new Unix user on the system
     umask_override = '0077'
@@ -36,7 +40,7 @@ def create_user(username, password):
     if not force_password(username, password):
         # Cannot force a password, login would not succeed: so rollback
         delete_user(username)
-        return False
+        return 2
 
     # Add the new user to all necessary groups
     cmd = "usermod -G '{}' {}".format(DEFAULT_USER_GROUPS, username)
@@ -74,6 +78,7 @@ if __name__ == '__main__':
     # Create local user and force the password
     try:
         rc=create_user(username, password)
-        sys.exit(rc)
     except:
-        sys.exit(2)
+        rc=2
+
+    sys.exit(rc)
