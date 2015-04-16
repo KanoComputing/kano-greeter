@@ -19,6 +19,20 @@ from kano.gtk3.kano_dialog import KanoDialog
 
 from kano_greeter.last_user import get_last_user
 
+class KanoUserList(LightDM.UserList):
+    def __init__(self):
+        LightDM.UserList.__init__(self)
+
+    # Looks like LightDM.UserList declares the below methods
+    # as Pure Virtual - failure to implement them will crash the app
+    def do_user_added(self, user):
+        pass
+    def do_user_changed(self, user):
+        pass
+    def do_user_removed(self, user):
+        pass
+
+
 class UserList(ScrolledWindow):
     HEIGHT = 300
     WIDTH = 250
@@ -47,10 +61,15 @@ class UserList(ScrolledWindow):
 
     def _populate(self):
         # Populate list
-        user_list = LightDM.UserList()
+        user_list = KanoUserList()
+        user_list.thaw_notify()
         for user in user_list.get_users():
             logger.debug('adding user {}'.format(user.get_name()))
             self.add_item(user.get_name())
+
+        # Destroying the class right now, otherwise the user add/del/modify
+        # signals are not sent correctly and the app crashes
+        del(user_list)
 
     def add_item(self, username):
         user = User(username)
