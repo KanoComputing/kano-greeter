@@ -1,8 +1,8 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 
 # kano-greeter-account
 #
-# Copyright (C) 2014 Kano Computing Ltd.
+# Copyright (C) 2015 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 #
 # Script to create a local Unix user account and force password
@@ -19,6 +19,7 @@ import sys
 
 from kano.utils import enforce_root, run_cmd
 from kano_init.user import user_exists
+from kano.logging import logger
 
 def create_user(username, password):
     DEFAULT_USER_GROUPS = "tty,adm,dialout,cdrom,audio,users,sudo,video,games," + \
@@ -72,7 +73,7 @@ if __name__ == '__main__':
         username=sys.argv[1]
         password=sys.argv[2]
     else:
-        print 'Syntax: kano-greeter-account <username> <password>'
+        logger.error('invalid parameters - syntax: kano-greeter-account <username> <password>')
         sys.exit(1)
 
     # Create local user and force the password

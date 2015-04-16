@@ -2,8 +2,11 @@
 
 # password_view.py
 #
-# Copyright (C) 2014 Kano Computing Ltd.
+# Copyright (C) 2015 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+# This view allows to authenticate a Kano World account and create a synchroznied local user.
+# Additionally, an option to create a new account via kano-init on the next system boot.
 #
 
 from gi.repository import Gtk
