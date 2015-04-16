@@ -15,7 +15,7 @@ case "$1" in
         # Revert to the default greeter
         sed -i 's/^\s*\(greeter-session\=\).*/\1lightdm-greeter/' "$lightdm_config"
 
-        # Remove LightDM access to kano-init
+        # Remove LightDM access to kano-init and kano-greeter-account
         sed -i /^%lightdm/d "$kano_init_sudoers"
 
         ;;
