@@ -7,9 +7,9 @@
 #
 
 from gi.repository import Gtk
-from gi.repository import LightDM
 
 import os
+import pwd
 
 from kano.logging import logger
 from kano.gtk3.scrolled_window import ScrolledWindow
@@ -19,18 +19,29 @@ from kano.gtk3.kano_dialog import KanoDialog
 
 from kano_greeter.last_user import get_last_user
 
-class KanoUserList(LightDM.UserList):
+class KanoUserList:
     def __init__(self):
-        LightDM.UserList.__init__(self)
+        # Alternative to LightDM.UsersList due to signals
+        # causing a segmentation fault in the application
+        pass
 
-    # Looks like LightDM.UserList declares the below methods
-    # as Pure Virtual - failure to implement them will crash the app
-    def do_user_added(self, user):
-        pass
-    def do_user_changed(self, user):
-        pass
-    def do_user_removed(self, user):
-        pass
+    def get_users(self, minimum_id=1000):
+        '''
+        Returns a list of interactive users on the system
+        as reported by Unix /etc/password database
+        '''
+        interactive_users=[]
+        system_users=pwd.getpwall()
+
+        # special usernames to exlude from the list
+        exclude=('nobody')
+
+        for user in system_users:
+            if user.pw_uid >= minimum_id and user.pw_name not in exclude:
+                # This is an interactive user created by Kano
+                interactive_users.append(user.pw_name)
+
+        return interactive_users
 
 
 class UserList(ScrolledWindow):
@@ -62,14 +73,9 @@ class UserList(ScrolledWindow):
     def _populate(self):
         # Populate list
         user_list = KanoUserList()
-        user_list.thaw_notify()
-        for user in user_list.get_users():
-            logger.debug('adding user {}'.format(user.get_name()))
-            self.add_item(user.get_name())
-
-        # Destroying the class right now, otherwise the user add/del/modify
-        # signals are not sent correctly and the app crashes
-        del(user_list)
+        for user_name in user_list.get_users():
+            logger.debug('adding user {}'.format(user_name))
+            self.add_item(user_name)
 
     def add_item(self, username):
         user = User(username)
