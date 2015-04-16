@@ -19,6 +19,7 @@ from kano.gtk3.buttons import OrangeButton
 
 from kano_greeter.user_list import UserList
 from kano_greeter.password_view import PasswordView
+from kano_greeter.newuser_view import NewUserView
 
 
 class GreeterWindow(ApplicationWindow):
@@ -81,6 +82,12 @@ class GreeterWindow(ApplicationWindow):
         self.set_main(password_view)
         self.top_bar.enable_prev()
         password_view.grab_focus()
+
+    def go_to_newuser(self):
+        newuser_view = NewUserView()
+        self.set_main(newuser_view)
+        self.top_bar.enable_prev()
+        newuser_view.grab_focus()
 
     def _back_cb(self, event, button):
         self.go_to_users()

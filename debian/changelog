@@ -1,3 +1,9 @@
+kano-greeter (1.0-2) unstable; urgency=low
+
+  * Added functionality to synchronize a Kano World account.
+
+ -- Team Kano <dev@kano.me>  Thu, 16 Apr 2015 18:16:29 +0100
+
 kano-greeter (1.0-1) unstable; urgency=low
 
   * Initial release.

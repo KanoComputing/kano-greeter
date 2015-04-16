@@ -7,9 +7,9 @@
 #
 
 from gi.repository import Gtk
-from gi.repository import LightDM
 
 import os
+import pwd
 
 from kano.logging import logger
 from kano.gtk3.scrolled_window import ScrolledWindow
@@ -18,6 +18,31 @@ from kano.gtk3.buttons import OrangeButton, KanoButton
 from kano.gtk3.kano_dialog import KanoDialog
 
 from kano_greeter.last_user import get_last_user
+
+class KanoUserList:
+    def __init__(self):
+        # Alternative to LightDM.UsersList due to signals
+        # causing a segmentation fault in the application
+        pass
+
+    def get_users(self, minimum_id=1000):
+        '''
+        Returns a list of interactive users on the system
+        as reported by Unix /etc/password database
+        '''
+        interactive_users=[]
+        system_users=pwd.getpwall()
+
+        # special usernames to exlude from the list
+        exclude=('nobody')
+
+        for user in system_users:
+            if user.pw_uid >= minimum_id and user.pw_name not in exclude:
+                # This is an interactive user created by Kano
+                interactive_users.append(user.pw_name)
+
+        return sorted(interactive_users, reverse=False)
+
 
 class UserList(ScrolledWindow):
     HEIGHT = 300
@@ -47,10 +72,10 @@ class UserList(ScrolledWindow):
 
     def _populate(self):
         # Populate list
-        user_list = LightDM.UserList()
-        for user in user_list.get_users():
-            logger.debug('adding user {}'.format(user.get_name()))
-            self.add_item(user.get_name())
+        user_list = KanoUserList()
+        for user_name in user_list.get_users():
+            logger.debug('adding user {}'.format(user_name))
+            self.add_item(user_name)
 
     def add_item(self, username):
         user = User(username)
@@ -58,29 +83,10 @@ class UserList(ScrolledWindow):
         if username == self.last_username:
             user.grab_focus()
 
-    @staticmethod
-    def add_account(*args):
-        confirm = KanoDialog(
-            title_text = _('Are you sure you want to create a new account?'),
-            description_text = _('A reboot will be required'),
-            button_dict = [
-                {
-                    'label': _('Cancel').upper(),
-                    'color': 'red',
-                    'return_value': False
-                },
-                {
-                    'label': _('Create').upper(),
-                    'color': 'green',
-                    'return_value': True
-                }
-            ])
-        confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
-
-        if confirm.run():
-            os.system("sudo kano-init newuser")
-            LightDM.restart()
-
+    def add_account(self, control):
+        logger.debug('opening new user dialog')
+        win = self.get_toplevel()
+        win.go_to_newuser()
 
 
 class User(KanoButton):
@@ -97,4 +103,3 @@ class User(KanoButton):
         logger.debug('user {} selected'.format(self.username))
         win = self.get_toplevel()
         win.go_to_password(self.username)
-

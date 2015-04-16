@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+
+# kano-greeter-account
+#
+# Copyright (C) 2015 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+# Script to create a local Unix user account and force password
+# Called from Kano Greeter UI via sudo.
+#
+# TODO: This tool is temporary until kano-init provides a sudoable equivalent approach
+# Return codes:
+#    0=new account created successfully
+#    1=account already exists - password has been forced
+#    2=could not create new account
+#
+
+import sys
+
+from kano.utils import enforce_root, run_cmd
+from kano_init.user import user_exists
+from kano.logging import logger
+
+def create_user(username, password):
+    DEFAULT_USER_GROUPS = "tty,adm,dialout,cdrom,audio,users,sudo,video,games," + \
+                          "plugdev,input,kanousers"    
+
+    # User already exists, force password and stop here
+    if user_exists(username):
+        force_password(username, password)
+        return 1
+
+    # Add the new Unix user on the system
+    umask_override = '0077'
+    cmd = "useradd -m -K UMASK={} -s /bin/bash {}".format(umask_override, username)
+    _, _, rv = run_cmd(cmd)
+    if rv:
+        return 2
+
+    # Force the account password
+    if not force_password(username, password):
+        # Cannot force a password, login would not succeed: so rollback
+        delete_user(username)
+        return 2
+
+    # Add the new user to all necessary groups
+    cmd = "usermod -G '{}' {}".format(DEFAULT_USER_GROUPS, username)
+    _, _, rv = run_cmd(cmd)
+    if rv==0:
+       return 0
+    else:
+       return 2
+
+
+def force_password(username, password):
+    cmd = "echo '{}:{}' | chpasswd".format(username, password)
+    _, _, rv = run_cmd(cmd)
+    return (rv==0)
+
+
+def delete_user(username):
+    # kill all process from the user
+    run_cmd("killall -KILL -u {}".format(username))
+    _, _, rv = run_cmd_log("userdel -r {}".format(username))
+    return (rv==0)
+
+
+if __name__ == '__main__':
+
+    # Validate and collect command line options
+    enforce_root('You must be root to use {}'.format(sys.argv[0]))
+    if len(sys.argv) > 2:
+        username=sys.argv[1]
+        password=sys.argv[2]
+    else:
+        logger.error('invalid parameters - syntax: kano-greeter-account <username> <password>')
+        sys.exit(1)
+
+    # Create local user and force the password
+    try:
+        rc=create_user(username, password)
+    except:
+        rc=2
+
+    sys.exit(rc)
