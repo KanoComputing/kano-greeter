@@ -156,7 +156,8 @@ class NewUserView(Gtk.Grid):
 
         if not loggedin:
             # Kano world auth unauthorized
-            self._error_message_box(title=_('Failed to authenticate to Kano World'), description=reason)
+            # FIXME: Localizing the below string fails with an exception
+            self._error_message_box(title='Failed to authenticate to Kano World', description=reason)
             return
         else:
             # We are authenticated to Kano World: proceed with forcing local user
