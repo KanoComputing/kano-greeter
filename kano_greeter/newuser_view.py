@@ -32,7 +32,7 @@ class NewUserView(Gtk.Grid):
         Gtk.Grid.__init__(self)
 
         self.get_style_context().add_class('password')
-        self.set_row_spacing(5)
+        self.set_row_spacing(12)
 
         self._reset_greeter()
 
