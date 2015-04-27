@@ -120,9 +120,10 @@ class PasswordView(Gtk.Grid):
         password_input.set_alignment(0.5)
 
         confirm = KanoDialog(
-            title_text = _('Are you sure you want to delete {}\'s account?').format(self.user),
-            description_text = _('A reboot will be required'),
+            title_text = _('Are you sure you want to delete this account?'),
+            description_text = _('Enter {}\'s password - A reboot will be required'.format(self.user)),
             widget=password_input,
+            has_entry=True,
             button_dict = [
                 {
                     'label': _('Cancel').upper(),
@@ -130,22 +131,42 @@ class PasswordView(Gtk.Grid):
                     'return_value': False
                 },
                 {
-                    'label': _('Delete').upper(),
+                    'label': _('Ok').upper(),
                     'color': 'green',
                     'return_value': True
                 }
             ])
+
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
-        if not confirm.run():
+        # Kano Dialog will return False if cancel button is clicked, or text from the entry field if Ok
+        response=confirm.run()
+        if response == False:
             return
-
-        password = password_input.get_text()
-
-        if pam.authenticate(self.user, password):
-            os.system('sudo kano-init deleteuser {}'.format(self.user))
-            LightDM.restart()
+        elif type(response) == str and not len(response):
+            error = KanoDialog(title_text = _('Please enter the password for user {}'.format(self.user)))
+            error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+            error.run()
+            return
         else:
-            error = KanoDialog(title_text = _('Incorrect password'))
+            password=response
+
+        # Authenticate user and schedule removal. Protect against unknown troubles.
+        try:
+            if pam.authenticate(self.user, password):
+                info = KanoDialog(title_text = _('User {} scheduled for removal'.format(self.user)), \
+                                  description_text = _('Press OK to reboot'))
+                info.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+                info.run()
+
+                os.system('sudo kano-init deleteuser {}'.format(self.user))
+                LightDM.restart()
+            else:
+                error = KanoDialog(title_text = _('Incorrect password for user {}'.format(self.user)))
+                error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+                error.run()
+        except Exception as e:
+            logger.error('Error deleting account {} - {}'.format(self.user, str(e)))
+            error = KanoDialog(title_text = _('Could not delete account {}'.format(self.user)))
             error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
             error.run()
