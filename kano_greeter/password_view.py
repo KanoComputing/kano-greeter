@@ -17,6 +17,7 @@ from kano.gtk3.heading import Heading
 from kano.gtk3.kano_dialog import KanoDialog
 
 from kano_greeter.last_user import set_last_user
+from kano_greeter.user_list import KanoUserList
 
 class PasswordView(Gtk.Grid):
     greeter = LightDM.Greeter()
@@ -47,9 +48,13 @@ class PasswordView(Gtk.Grid):
         self.login_btn.connect('clicked', self._login_cb)
         self.attach(self.login_btn, 0, 3, 1, 1)
 
-        delete_account_btn = OrangeButton(_('Remove Account'))
-        delete_account_btn.connect('clicked', self.delete_user)
-        self.attach(delete_account_btn, 0, 4, 1, 1)
+        # Protect against removing the last Kano user
+        # so you do not get locked out from logging into the Kit
+        system_users=KanoUserList().get_users()
+        if len(system_users) > 1:
+            delete_account_btn = OrangeButton(_('Remove Account'))
+            delete_account_btn.connect('clicked', self.delete_user)
+            self.attach(delete_account_btn, 0, 4, 1, 1)
 
     def _reset_greeter(self):
         PasswordView.greeter = PasswordView.greeter.new()
