@@ -24,6 +24,9 @@ case "$1" in
         # Fix permisssions so that lightdm can start the greeter (this actually seems to be a bug in lightm)
         chown lightdm:lightdm /var/lib/lightdm
 
+        # Add the lightdm user to the shadow group, so that he can authenticate system users via PAM
+        usermod -a -G lightdm shadow
+
         ;;
 esac
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# password_view.py
+# newuser_view.py
 #
 # Copyright (C) 2015 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
@@ -32,7 +32,7 @@ class NewUserView(Gtk.Grid):
         Gtk.Grid.__init__(self)
 
         self.get_style_context().add_class('password')
-        self.set_row_spacing(5)
+        self.set_row_spacing(12)
 
         self._reset_greeter()
 
@@ -44,27 +44,38 @@ class NewUserView(Gtk.Grid):
                         _('Synchronize a Kano World\n' \
                           'user, or create a new account.'))
 
-        self.attach(title.container, 0, 0, 1, 1)
+        self.attach(title.container, 0, 0, 2, 1)
         self.label = Gtk.Label("Use your Kano World user")
         self.label.get_style_context().add_class('login')
-        self.attach(self.label, 0, 1, 1, 1)
+        self.attach(self.label, 0, 1, 2, 1)
+
+        # username label and entry field
+        self.user_label = Gtk.Label("Username")
+        self.user_label.get_style_context().add_class('login')
+        self.attach(self.user_label, 0, 2, 1, 1)
 
         self.username = Gtk.Entry()
         self.username.set_alignment(0.5)
-        self.attach(self.username, 0, 2, 1, 1)
+        self.attach(self.username, 1, 2, 1, 1)
+
+        # password label and entry field
+        self.pwd_label = Gtk.Label("Password")
+        self.pwd_label.get_style_context().add_class('login')
+        self.attach(self.pwd_label, 0, 3, 1, 1)
 
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
         self.password.set_alignment(0.5)
-        self.attach(self.password, 0, 3, 1, 1)
+        self.attach(self.password, 1, 3, 1, 1)
 
+        # the 2 push buttons
         self.login_btn = KanoButton(_('Login & Synchronize'))
         self.login_btn.connect('clicked', self._btn_login_pressed)
-        self.attach(self.login_btn, 0, 4, 1, 1)
+        self.attach(self.login_btn, 0, 4, 2, 1)
 
         self.newuser_btn = KanoButton(_('Create new user (reboot)'))
         self.newuser_btn.connect('clicked', self._new_user_reboot)
-        self.attach(self.newuser_btn, 0, 5, 1, 1)
+        self.attach(self.newuser_btn, 0, 5, 2, 1)
 
     def _new_user_reboot(self, event=None, button=None):
         '''
