@@ -26,11 +26,16 @@ class GreeterWindow(ApplicationWindow):
     WIDTH = 400
     HEIGHT = -1
 
+    greeter = LightDM.Greeter()
+
     def __init__(self):
         apply_common_to_screen()
 
         ApplicationWindow.__init__(self, _('Login'), self.WIDTH, self.HEIGHT)
         self.connect("delete-event", Gtk.main_quit)
+
+        self.greeter = GreeterWindow.greeter.new()
+        self.password_view = self.newuser_view = None
 
         self.grid = Gtk.Grid()
         self.set_main_widget(self.grid)
@@ -78,16 +83,28 @@ class GreeterWindow(ApplicationWindow):
         self.top_bar.disable_prev()
 
     def go_to_password(self, user):
-        password_view = PasswordView(user)
-        self.set_main(password_view)
+        # Unregister previous view notifications so LightDM is happy
+        if (self.newuser_view):
+            self.greeter.disconnect(self.newuser_view.cb_one)
+            self.greeter.disconnect(self.newuser_view.cb_two)
+            self.greeter.disconnect(self.newuser_view.cb_three)
+        
+        self.password_view = PasswordView(user, self.greeter)
+        self.set_main(self.password_view)
         self.top_bar.enable_prev()
-        password_view.grab_focus()
+        self.password_view.grab_focus()
 
     def go_to_newuser(self):
-        newuser_view = NewUserView()
-        self.set_main(newuser_view)
+        # Unregister previous view notifications so LightDM is happy
+        if (self.password_view):
+            self.greeter.disconnect(self.password_view.cb_one)
+            self.greeter.disconnect(self.password_view.cb_two)
+            self.greeter.disconnect(self.password_view.cb_three)
+
+        self.newuser_view = NewUserView(self.greeter)
+        self.set_main(self.newuser_view)
         self.top_bar.enable_prev()
-        newuser_view.grab_focus()
+        self.newuser_view.grab_focus()
 
     def _back_cb(self, event, button):
         self.go_to_users()

@@ -20,14 +20,14 @@ from kano_greeter.last_user import set_last_user
 from kano_greeter.user_list import KanoUserList
 
 class PasswordView(Gtk.Grid):
-    greeter = LightDM.Greeter()
 
-    def __init__(self, user):
+    def __init__(self, user, greeter):
         Gtk.Grid.__init__(self)
 
         self.get_style_context().add_class('password')
         self.set_row_spacing(10)
 
+        self.greeter=greeter
         self._reset_greeter()
 
         self.user = user
@@ -57,22 +57,21 @@ class PasswordView(Gtk.Grid):
             self.attach(delete_account_btn, 0, 4, 1, 1)
 
     def _reset_greeter(self):
-        PasswordView.greeter = PasswordView.greeter.new()
-        PasswordView.greeter.connect_sync()
-
         # connect signal handlers to LightDM
-        PasswordView.greeter.connect('show-prompt', self._send_password_cb)
-        PasswordView.greeter.connect('authentication-complete',
-                                     self._authentication_complete_cb)
-        PasswordView.greeter.connect('show-message', self._auth_error_cb)
+        self.greeter.connect_sync()
+
+        self.cb_one = self.greeter.connect('show-prompt', self._send_password_cb)
+        self.cb_two = self.greeter.connect('authentication-complete',
+                                           self._authentication_complete_cb)
+        self.cb_three = self.greeter.connect('show-message', self._auth_error_cb)
 
     def _login_cb(self, event=None, button=None):
         logger.debug('Sending username to LightDM')
 
         self.login_btn.start_spinner()
-        PasswordView.greeter.authenticate(self.user)
+        self.greeter.authenticate(self.user)
 
-        if PasswordView.greeter.get_is_authenticated():
+        if self.greeter.get_is_authenticated():
             logger.debug('User is already authenticated, starting session')
             start_session()
 

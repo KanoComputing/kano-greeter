@@ -26,14 +26,14 @@ from kano.utils import run_cmd
 
 
 class NewUserView(Gtk.Grid):
-    greeter = LightDM.Greeter()
 
-    def __init__(self):
+    def __init__(self, greeter):
         Gtk.Grid.__init__(self)
 
         self.get_style_context().add_class('password')
         self.set_row_spacing(12)
 
+        self.greeter=greeter
         self._reset_greeter()
 
         # Commands needed to synchronize Kano World account with Unix account
@@ -104,15 +104,14 @@ class NewUserView(Gtk.Grid):
             LightDM.restart()
 
     def _reset_greeter(self):
-        NewUserView.greeter = NewUserView.greeter.new()
-        NewUserView.greeter.connect_sync()
-
         # connect signal handlers to LightDM
-        NewUserView.greeter.connect('show-prompt', self._send_password_cb)
-        NewUserView.greeter.connect('authentication-complete',
-                                    self._authentication_complete_cb)
-        NewUserView.greeter.connect('show-message', self._auth_error_cb)
+        self.greeter.connect_sync()
 
+        self.cb_one = self.greeter.connect('show-prompt', self._send_password_cb)
+        self.cb_two = self.greeter.connect('authentication-complete',
+                                           self._authentication_complete_cb)
+        self.cb_three = self.greeter.connect('show-message', self._auth_error_cb)
+        
     def _error_message_box(self, title, description):
         '''
         Show a standard error message box
@@ -193,8 +192,8 @@ class NewUserView(Gtk.Grid):
                 return
 
             # Tell Lidghtdm to proceed with login session using the new user
-            NewUserView.greeter.authenticate(self.unix_username)
-            if NewUserView.greeter.get_is_authenticated():
+            self.greeter.authenticate(self.unix_username)
+            if self.greeter.get_is_authenticated():
                 logger.debug('User is already authenticated, starting session')
 
     def _send_password_cb(self, _greeter, text, prompt_type):
