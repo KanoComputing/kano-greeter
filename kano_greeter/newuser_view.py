@@ -9,7 +9,7 @@
 # Additionally, an option to create a new account via kano-init on the next system boot.
 #
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 from gi.repository import LightDM
 
 import os
@@ -24,6 +24,8 @@ from kano_greeter.last_user import set_last_user
 from kano_world.functions import login as kano_world_authenticate
 from kano.utils import run_cmd
 
+import threading
+
 
 class NewUserView(Gtk.Grid):
 
@@ -34,7 +36,6 @@ class NewUserView(Gtk.Grid):
         self.set_row_spacing(12)
 
         self.greeter=greeter
-        self._reset_greeter()
 
         # Commands needed to synchronize Kano World account with Unix account
         self.sync_cmd = 'su - {username} -c "/usr/bin/kano-sync --sync -s"'
@@ -105,17 +106,18 @@ class NewUserView(Gtk.Grid):
 
     def _reset_greeter(self):
         # connect signal handlers to LightDM
-        self.greeter.connect_sync()
-
         self.cb_one = self.greeter.connect('show-prompt', self._send_password_cb)
         self.cb_two = self.greeter.connect('authentication-complete',
                                            self._authentication_complete_cb)
         self.cb_three = self.greeter.connect('show-message', self._auth_error_cb)
-        
+        self.greeter.connect_sync()
+        return (self.cb_one, self.cb_two, self.cb_three)
+
     def _error_message_box(self, title, description):
         '''
         Show a standard error message box
         '''
+        self.login_btn.stop_spinner()
         errormsg=KanoDialog(title_text=title,
                             description_text=description,
                             button_dict= [
@@ -128,8 +130,7 @@ class NewUserView(Gtk.Grid):
         errormsg.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         errormsg.run()
 
-        # Stop spinner; cleanup view fields
-        self.login_btn.stop_spinner()
+        # Clean up password field
         self.password.set_text('')
         return
 
@@ -138,10 +139,13 @@ class NewUserView(Gtk.Grid):
         Authenticates against Kano World. If successful synchronizes to a local
         Unix account, and tells lightdm to go forward with local a login.
         '''
-
         logger.debug('Synchronizing Kano World account')
         self.login_btn.start_spinner()
 
+        t = threading.Thread(target=self._thr_login)
+        t.start()
+
+    def _thr_login(self):
         loggedin=False
         reason=''
 
@@ -167,7 +171,7 @@ class NewUserView(Gtk.Grid):
         if not loggedin:
             # Kano world auth unauthorized
             # FIXME: Localizing the below string fails with an exception
-            self._error_message_box(title='Failed to authenticate to Kano World', description=reason)
+            GObject.idle_add(self._error_message_box, 'Failed to authenticate to Kano World', reason)
             return
         else:
             # We are authenticated to Kano World: proceed with forcing local user
@@ -188,10 +192,13 @@ class NewUserView(Gtk.Grid):
 
             if not created:
                 logger.debug('Error creating new local user: {}'.format(self.unix_username))
-                self._error_message_box(title, _("Could not create local user"))
+                GObject.idle_add(self._error_message_box, title, "Could not create local user")
                 return
 
             # Tell Lidghtdm to proceed with login session using the new user
+            # We bind LightDM at this point only, this minimizes the number of attempts
+            # to bind the Greeter class to a view, which he does not like quite well.
+            self._reset_greeter()
             self.greeter.authenticate(self.unix_username)
             if self.greeter.get_is_authenticated():
                 logger.debug('User is already authenticated, starting session')
@@ -232,7 +239,7 @@ class NewUserView(Gtk.Grid):
         win = self.get_toplevel()
         win.go_to_users()
 
-        error = KanoDialog(title_text=_('Error Logging In'),
+        error = KanoDialog(title_text=_('Error Synchronizing account'),
                            description_text=text,
                            parent_window=self.get_toplevel())
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)

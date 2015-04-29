@@ -31,6 +31,9 @@ class GreeterWindow(ApplicationWindow):
     def __init__(self):
         apply_common_to_screen()
 
+        self.a=self.b=self.c=0
+        self.switching=0
+
         ApplicationWindow.__init__(self, _('Login'), self.WIDTH, self.HEIGHT)
         self.connect("delete-event", Gtk.main_quit)
 
@@ -38,7 +41,7 @@ class GreeterWindow(ApplicationWindow):
         self.greeter = GreeterWindow.greeter.new()
 
         # Create the two views: one for normal Login, the other to create a new account
-        self.password_view = PasswordView('', self.greeter)
+        self.password_view = PasswordView(None, self.greeter)
         self.newuser_view = NewUserView(self.greeter)
 
         self.grid = Gtk.Grid()
@@ -90,12 +93,38 @@ class GreeterWindow(ApplicationWindow):
         # Called when we switch between views using top-left arrow button
         self.set_main(self.password_view)
         self.top_bar.enable_prev()
+
+        if not self.switching == 1:
+            self.greeter.disconnect(self.a)
+            self.greeter.disconnect(self.b)
+            self.greeter.disconnect(self.c)
+
+            self.greeter = GreeterWindow.greeter.new()
+            self.password_view.greeter=self.greeter
+            (self.a,self.b,self.c) = self.password_view._reset_greeter()
+            self.switching=1
+        
         self.password_view.grab_focus(user)
 
     def go_to_newuser(self):
         # Called when we switch between views using top-left arrow button
         self.set_main(self.newuser_view)
         self.top_bar.enable_prev()
+
+        if not self.switching == 2:
+            self.greeter.disconnect(self.a)
+            self.greeter.disconnect(self.b)
+            self.greeter.disconnect(self.c)
+
+            self.greeter = GreeterWindow.greeter.new()
+            self.newuser_view.greeter=self.greeter
+
+            # FIXME: We do not reset the greeter in the newuser view
+            # It will be done only when the local user account has been forced
+            # so as to avoid LightDM freezes
+            #(self.a,self.b,self.c) = self.newuser_view._reset_greeter()
+            self.switching=2
+
         self.newuser_view.grab_focus()
 
     def _back_cb(self, event, button):

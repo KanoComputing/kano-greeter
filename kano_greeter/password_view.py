@@ -29,12 +29,10 @@ class PasswordView(Gtk.Grid):
         self.set_row_spacing(10)
 
         self.greeter=greeter
-        self._reset_greeter()
 
         self.user = user
-        title = Heading(_('Enter your password'),
-                        _('If you haven\'t changed your password,\n'
-                        'use "kano"'))
+        title = self._set_title()
+
         self.attach(title.container, 0, 0, 1, 1)
         self.label = Gtk.Label(user)
         self.label.get_style_context().add_class('login')
@@ -57,6 +55,12 @@ class PasswordView(Gtk.Grid):
             delete_account_btn.connect('clicked', self.delete_user)
             self.attach(delete_account_btn, 0, 4, 1, 1)
 
+    def _set_title(self):
+        title = Heading(_('{}: Enter your password'.format(self.user)),
+                        _('If you haven\'t changed your password,\n'
+                          'use "kano"'))
+        return title
+
     def _reset_greeter(self):
         # connect signal handlers to LightDM
         self.cb_one = self.greeter.connect('show-prompt', self._send_password_cb)
@@ -65,11 +69,14 @@ class PasswordView(Gtk.Grid):
         self.cb_three = self.greeter.connect('show-message', self._auth_error_cb)
 
         self.greeter.connect_sync()
+        return (self.cb_one, self.cb_two, self.cb_three)
 
     def _login_cb(self, event=None, button=None):
         logger.debug('Sending username to LightDM')
 
         self.login_btn.start_spinner()
+        Gtk.main_iteration_do(True)
+        
         self.greeter.authenticate(self.user)
 
         if self.greeter.get_is_authenticated():
@@ -121,6 +128,10 @@ class PasswordView(Gtk.Grid):
 
     def grab_focus(self, user):
         self.user=user
+
+        # TODO: update the title with the username
+        #self._set_title()
+
         self.password.grab_focus()
 
     def delete_user(self, *args):
