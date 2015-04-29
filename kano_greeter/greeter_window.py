@@ -26,7 +26,7 @@ class GreeterWindow(ApplicationWindow):
     WIDTH = 400
     HEIGHT = -1
 
-    greeter = LightDM.Greeter()
+    greeter = LightDM.Greeter
 
     def __init__(self):
         apply_common_to_screen()
@@ -34,8 +34,12 @@ class GreeterWindow(ApplicationWindow):
         ApplicationWindow.__init__(self, _('Login'), self.WIDTH, self.HEIGHT)
         self.connect("delete-event", Gtk.main_quit)
 
+        # Create a new LightDM.Greeter instance which will be used by the 2 views
         self.greeter = GreeterWindow.greeter.new()
-        self.password_view = self.newuser_view = None
+
+        # Create the two views: one for normal Login, the other to create a new account
+        self.password_view = PasswordView('', self.greeter)
+        self.newuser_view = NewUserView(self.greeter)
 
         self.grid = Gtk.Grid()
         self.set_main_widget(self.grid)
@@ -83,25 +87,13 @@ class GreeterWindow(ApplicationWindow):
         self.top_bar.disable_prev()
 
     def go_to_password(self, user):
-        # Unregister previous view notifications so LightDM is happy
-        if (self.newuser_view):
-            self.greeter.disconnect(self.newuser_view.cb_one)
-            self.greeter.disconnect(self.newuser_view.cb_two)
-            self.greeter.disconnect(self.newuser_view.cb_three)
-        
-        self.password_view = PasswordView(user, self.greeter)
+        # Called when we switch between views using top-left arrow button
         self.set_main(self.password_view)
         self.top_bar.enable_prev()
-        self.password_view.grab_focus()
+        self.password_view.grab_focus(user)
 
     def go_to_newuser(self):
-        # Unregister previous view notifications so LightDM is happy
-        if (self.password_view):
-            self.greeter.disconnect(self.password_view.cb_one)
-            self.greeter.disconnect(self.password_view.cb_two)
-            self.greeter.disconnect(self.password_view.cb_three)
-
-        self.newuser_view = NewUserView(self.greeter)
+        # Called when we switch between views using top-left arrow button
         self.set_main(self.newuser_view)
         self.top_bar.enable_prev()
         self.newuser_view.grab_focus()

@@ -19,6 +19,7 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 from kano_greeter.user_list import KanoUserList
 
+
 class PasswordView(Gtk.Grid):
 
     def __init__(self, user, greeter):
@@ -58,12 +59,12 @@ class PasswordView(Gtk.Grid):
 
     def _reset_greeter(self):
         # connect signal handlers to LightDM
-        self.greeter.connect_sync()
-
         self.cb_one = self.greeter.connect('show-prompt', self._send_password_cb)
         self.cb_two = self.greeter.connect('authentication-complete',
                                            self._authentication_complete_cb)
         self.cb_three = self.greeter.connect('show-message', self._auth_error_cb)
+
+        self.greeter.connect_sync()
 
     def _login_cb(self, event=None, button=None):
         logger.debug('Sending username to LightDM')
@@ -77,6 +78,7 @@ class PasswordView(Gtk.Grid):
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug('Need to show prompt: {}'.format(text))
+
         if _greeter.get_in_authentication():
             logger.debug('Sending password to LightDM')
             _greeter.respond(self.password.get_text())
@@ -104,16 +106,21 @@ class PasswordView(Gtk.Grid):
     def _auth_error_cb(self, text, message_type=None):
         logger.info('There was an error logging in: {}'.format(text))
 
-        win = self.get_toplevel()
-        win.go_to_users()
+        self.greeter.cancel_authentication()
 
+        self.login_btn.stop_spinner()
+        self.password.set_text('')
+
+        win = self.get_toplevel()
         error = KanoDialog(title_text=_('Error Logging In'),
                            description_text=text,
-                           parent_window=self.get_toplevel())
+                           parent_window=win)
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
+        win.go_to_users()
 
-    def grab_focus(self):
+    def grab_focus(self, user):
+        self.user=user
         self.password.grab_focus()
 
     def delete_user(self, *args):
