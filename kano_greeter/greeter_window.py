@@ -26,11 +26,23 @@ class GreeterWindow(ApplicationWindow):
     WIDTH = 400
     HEIGHT = -1
 
+    greeter = LightDM.Greeter
+
     def __init__(self):
         apply_common_to_screen()
 
+        self.a=self.b=self.c=0
+        self.switching=0
+
         ApplicationWindow.__init__(self, _('Login'), self.WIDTH, self.HEIGHT)
         self.connect("delete-event", Gtk.main_quit)
+
+        # Create a new LightDM.Greeter instance which will be used by the 2 views
+        self.greeter = GreeterWindow.greeter.new()
+
+        # Create the two views: one for normal Login, the other to create a new account
+        self.password_view = PasswordView(None, self.greeter)
+        self.newuser_view = NewUserView(self.greeter)
 
         self.grid = Gtk.Grid()
         self.set_main_widget(self.grid)
@@ -78,16 +90,42 @@ class GreeterWindow(ApplicationWindow):
         self.top_bar.disable_prev()
 
     def go_to_password(self, user):
-        password_view = PasswordView(user)
-        self.set_main(password_view)
+        # Called when we switch between views using top-left arrow button
+        self.set_main(self.password_view)
         self.top_bar.enable_prev()
-        password_view.grab_focus()
+
+        if not self.switching == 1:
+            self.greeter.disconnect(self.a)
+            self.greeter.disconnect(self.b)
+            self.greeter.disconnect(self.c)
+
+            self.greeter = GreeterWindow.greeter.new()
+            self.password_view.greeter=self.greeter
+            (self.a,self.b,self.c) = self.password_view._reset_greeter()
+            self.switching=1
+        
+        self.password_view.grab_focus(user)
 
     def go_to_newuser(self):
-        newuser_view = NewUserView()
-        self.set_main(newuser_view)
+        # Called when we switch between views using top-left arrow button
+        self.set_main(self.newuser_view)
         self.top_bar.enable_prev()
-        newuser_view.grab_focus()
+
+        if not self.switching == 2:
+            self.greeter.disconnect(self.a)
+            self.greeter.disconnect(self.b)
+            self.greeter.disconnect(self.c)
+
+            self.greeter = GreeterWindow.greeter.new()
+            self.newuser_view.greeter=self.greeter
+
+            # FIXME: We do not reset the greeter in the newuser view
+            # It will be done only when the local user account has been forced
+            # so as to avoid LightDM freezes
+            #(self.a,self.b,self.c) = self.newuser_view._reset_greeter()
+            self.switching=2
+
+        self.newuser_view.grab_focus()
 
     def _back_cb(self, event, button):
         self.go_to_users()

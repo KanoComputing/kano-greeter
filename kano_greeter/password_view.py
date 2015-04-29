@@ -19,21 +19,20 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 from kano_greeter.user_list import KanoUserList
 
-class PasswordView(Gtk.Grid):
-    greeter = LightDM.Greeter()
 
-    def __init__(self, user):
+class PasswordView(Gtk.Grid):
+
+    def __init__(self, user, greeter):
         Gtk.Grid.__init__(self)
 
         self.get_style_context().add_class('password')
         self.set_row_spacing(10)
 
-        self._reset_greeter()
+        self.greeter=greeter
 
         self.user = user
-        title = Heading(_('Enter your password'),
-                        _('If you haven\'t changed your password,\n'
-                        'use "kano"'))
+        title = self._set_title()
+
         self.attach(title.container, 0, 0, 1, 1)
         self.label = Gtk.Label(user)
         self.label.get_style_context().add_class('login')
@@ -56,28 +55,37 @@ class PasswordView(Gtk.Grid):
             delete_account_btn.connect('clicked', self.delete_user)
             self.attach(delete_account_btn, 0, 4, 1, 1)
 
-    def _reset_greeter(self):
-        PasswordView.greeter = PasswordView.greeter.new()
-        PasswordView.greeter.connect_sync()
+    def _set_title(self):
+        title = Heading(_('{}: Enter your password'.format(self.user)),
+                        _('If you haven\'t changed your password,\n'
+                          'use "kano"'))
+        return title
 
+    def _reset_greeter(self):
         # connect signal handlers to LightDM
-        PasswordView.greeter.connect('show-prompt', self._send_password_cb)
-        PasswordView.greeter.connect('authentication-complete',
-                                     self._authentication_complete_cb)
-        PasswordView.greeter.connect('show-message', self._auth_error_cb)
+        self.cb_one = self.greeter.connect('show-prompt', self._send_password_cb)
+        self.cb_two = self.greeter.connect('authentication-complete',
+                                           self._authentication_complete_cb)
+        self.cb_three = self.greeter.connect('show-message', self._auth_error_cb)
+
+        self.greeter.connect_sync()
+        return (self.cb_one, self.cb_two, self.cb_three)
 
     def _login_cb(self, event=None, button=None):
         logger.debug('Sending username to LightDM')
 
         self.login_btn.start_spinner()
-        PasswordView.greeter.authenticate(self.user)
+        Gtk.main_iteration_do(True)
+        
+        self.greeter.authenticate(self.user)
 
-        if PasswordView.greeter.get_is_authenticated():
+        if self.greeter.get_is_authenticated():
             logger.debug('User is already authenticated, starting session')
             start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug('Need to show prompt: {}'.format(text))
+
         if _greeter.get_in_authentication():
             logger.debug('Sending password to LightDM')
             _greeter.respond(self.password.get_text())
@@ -105,16 +113,25 @@ class PasswordView(Gtk.Grid):
     def _auth_error_cb(self, text, message_type=None):
         logger.info('There was an error logging in: {}'.format(text))
 
-        win = self.get_toplevel()
-        win.go_to_users()
+        self.greeter.cancel_authentication()
 
+        self.login_btn.stop_spinner()
+        self.password.set_text('')
+
+        win = self.get_toplevel()
         error = KanoDialog(title_text=_('Error Logging In'),
                            description_text=text,
-                           parent_window=self.get_toplevel())
+                           parent_window=win)
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
+        win.go_to_users()
 
-    def grab_focus(self):
+    def grab_focus(self, user):
+        self.user=user
+
+        # TODO: update the title with the username
+        #self._set_title()
+
         self.password.grab_focus()
 
     def delete_user(self, *args):
