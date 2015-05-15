@@ -181,7 +181,7 @@ class PasswordView(Gtk.Grid):
                 info.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
                 info.run()
 
-                os.system('sudo kano-init deleteuser {}'.format(self.user))
+                os.system('sudo kano-init schedule delete-user "{}"'.format(self.user))
                 LightDM.restart()
             else:
                 error = KanoDialog(title_text = _('Incorrect password for user {}'.format(self.user)))
