@@ -25,7 +25,7 @@ case "$1" in
         chown lightdm:lightdm /var/lib/lightdm
 
         # Add the lightdm user to the shadow group, so that he can authenticate system users via PAM
-        usermod -a -G lightdm shadow
+        usermod -a -G shadow lightdm
 
         ;;
 esac
