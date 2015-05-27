@@ -101,7 +101,7 @@ class NewUserView(Gtk.Grid):
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         
         if confirm.run():
-            os.system("sudo kano-init newuser")
+            os.system("sudo kano-init schedule add-user")
             LightDM.restart()
 
     def _reset_greeter(self):
