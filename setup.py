@@ -11,7 +11,7 @@ def get_locales():
     for dirpath, dirnames, filenames in os.walk(locale_dir):
         for filename in filenames:
             locales.append(
-                (os.path.join('/usr/share', dirpath, filename),
+                (os.path.join('/usr/share', dirpath),
                  [os.path.join(dirpath, filename)])
             )
 
