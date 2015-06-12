@@ -154,7 +154,7 @@ class NewUserView(Gtk.Grid):
         self.unix_password=self.password.get_text()
         self.unix_username=self.username.get_text()
         atsign=self.unix_username.find('@')
-        if atsign:
+        if atsign != -1:
             # For if we are in "staging" mode (see /etc/kano-world.conf)
             self.unix_username=self.unix_username[:atsign]
 
