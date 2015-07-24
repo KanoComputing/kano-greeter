@@ -198,10 +198,15 @@ class NewUserView(Gtk.Grid):
             # Tell Lidghtdm to proceed with login session using the new user
             # We bind LightDM at this point only, this minimizes the number of attempts
             # to bind the Greeter class to a view, which he does not like quite well.
-            self._reset_greeter()
-            self.greeter.authenticate(self.unix_username)
-            if self.greeter.get_is_authenticated():
-                logger.debug('User is already authenticated, starting session')
+            logger.debug('Scheduling lightdm authentication in math thread')
+            GObject.idle_add(self._auth_call)
+
+    def _auth_call(self):
+        logger.debug('Starting lightdm authentication')
+        self._reset_greeter()
+        self.greeter.authenticate(self.unix_username)
+        if self.greeter.get_is_authenticated():
+            logger.debug('User is already authenticated, starting session')
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug('Need to show prompt: {}'.format(text))
