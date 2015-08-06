@@ -37,13 +37,9 @@ class NewUserView(Gtk.Grid):
 
         self.greeter=greeter
 
-        # Commands needed to synchronize Kano World account with Unix account
-        self.sync_cmd = 'su - {username} -c "/usr/bin/kano-sync --sync -s"'
-        self.sync_restore_cmd = 'su - {username} -c "/usr/bin/kano-sync --restore -s"'
-
         title = Heading(_('Add new account'),
                         _('Synchronize a Kano World\n' \
-                          'user, or create a new account.'))
+                              'user, or create a new account.'))
 
         self.attach(title.container, 0, 0, 2, 1)
         self.label = Gtk.Label("Use your Kano World user")
@@ -118,6 +114,9 @@ class NewUserView(Gtk.Grid):
         Show a standard error message box
         '''
         self.login_btn.stop_spinner()
+        self.login_btn.set_sensitive(True)
+        self.newuser_btn.set_sensitive(True)
+
         errormsg=KanoDialog(title_text=title,
                             description_text=description,
                             button_dict= [
@@ -141,6 +140,8 @@ class NewUserView(Gtk.Grid):
         '''
         logger.debug('Synchronizing Kano World account')
         self.login_btn.start_spinner()
+        self.login_btn.set_sensitive(False)
+        self.newuser_btn.set_sensitive(False)
 
         t = threading.Thread(target=self._thr_login)
         t.start()
@@ -152,6 +153,7 @@ class NewUserView(Gtk.Grid):
         # TODO: Disable the "login" button unless these entry fields are non-empty
         # Collect credentials from the view
         self.unix_password=self.password.get_text()
+        self.world_username=self.username.get_text()
         self.unix_username=self.username.get_text()
         atsign=self.unix_username.find('@')
         if atsign != -1:
@@ -175,24 +177,24 @@ class NewUserView(Gtk.Grid):
             return
         else:
             # We are authenticated to Kano World: proceed with forcing local user
+            rc=-1
             try:
-                createuser_cmd='sudo /usr/bin/kano-greeter-account {} {}'.format(self.unix_username, self.unix_password)
+                # Create the local unix user, bypass kano-init-flow, login & sync to Kano World 
+                createuser_cmd='sudo /usr/bin/kano-greeter-account {} {} {}'.format(
+                    self.unix_username, self.unix_password, self.world_username)
                 _, _, rc = run_cmd(createuser_cmd)
                 if rc==0:
-                    logger.debug('Local user created correctly, synchronizing: {}'.format(self.unix_username))
-                    run_cmd(self.sync_cmd.format(username=self.unix_username))
-                    run_cmd(self.sync_cmd.format(username=self.unix_username))
-                    run_cmd(self.sync_restore_cmd.format(username=self.unix_username))
+                    logger.debug('Local user created correctly: {}'.format(self.unix_username))
                 elif rc==1:
-                    logger.debug('Local user already exists, synchronizing: {}'.format(self.unix_username))
-                    run_cmd(self.sync_cmd.format(username=self.unix_username))
+                    logger.debug('Local user already exists, proceeding with login: {}'.format(self.unix_username))
+
                 created=True
             except:
                 created=False
 
             if not created:
                 logger.debug('Error creating new local user: {}'.format(self.unix_username))
-                GObject.idle_add(self._error_message_box, title, "Could not create local user")
+                GObject.idle_add(self._error_message_box, "Could not create local user", rc)
                 return
 
             # Tell Lidghtdm to proceed with login session using the new user
@@ -243,6 +245,10 @@ class NewUserView(Gtk.Grid):
 
         win = self.get_toplevel()
         win.go_to_users()
+
+        self.login_btn.stop_spinner()
+        self.login_btn.set_sensitive(True)
+        self.newuser_btn.set_sensitive(True)
 
         error = KanoDialog(title_text=_('Error Synchronizing account'),
                            description_text=text,
