@@ -13,7 +13,7 @@ case "$1" in
     configure)
 
         # Switch to use the Kano Greeter
-        sed -i 's/^\s*\(greeter-session\=\).*/\1kano-greeter/' "$lightdm_config"
+        sed -i 's/^#*\(greeter-session\=\).*/\1kano-greeter/' "$lightdm_config"
 
         # Allow the greeter to run kano-init
         sed -i '$a%lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-init' "$kano_init_sudoers"
