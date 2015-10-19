@@ -257,4 +257,9 @@ class NewUserView(Gtk.Grid):
         error.run()
 
     def grab_focus(self):
+        '''
+        Clear username and password previous text, and gain focus.
+        '''
+        self.username.set_text('')
+        self.password.set_text('')
         self.username.grab_focus()
