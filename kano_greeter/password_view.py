@@ -31,9 +31,9 @@ class PasswordView(Gtk.Grid):
         self.greeter=greeter
 
         self.user = user
-        title = self._set_title()
+        self.title = self._set_title()
 
-        self.attach(title.container, 0, 0, 1, 1)
+        self.attach(self.title.container, 0, 0, 1, 1)
         self.label = Gtk.Label(user)
         self.label.get_style_context().add_class('login')
         self.attach(self.label, 0, 1, 1, 1)
@@ -55,11 +55,22 @@ class PasswordView(Gtk.Grid):
             delete_account_btn.connect('clicked', self.delete_user)
             self.attach(delete_account_btn, 0, 4, 1, 1)
 
-    def _set_title(self):
-        title = Heading(_('{}: Enter your password'.format(self.user)),
-                        _('If you haven\'t changed your password,\n'
-                          'use "kano"'))
-        return title
+    def _set_title(self, create=True):
+        '''
+        Creates a Heading text widget, or updates it
+        with the currently selected username.
+        '''
+
+        # FIXME: Cannot assign NLS token mark to literals below
+        text_title='{}: Enter your password'.format(self.user)
+        text_description='If you haven\'t changed your password,\nuse "kano"'
+        
+        if create:
+            title = Heading(text_title, text_description)
+            return title
+        else:
+            self.title.set_text(text_title, text_description)
+            return self.title
 
     def _reset_greeter(self):
         # connect signal handlers to LightDM
@@ -127,11 +138,14 @@ class PasswordView(Gtk.Grid):
         win.go_to_users()
 
     def grab_focus(self, user):
+        '''
+        Update username title, clear previous password,
+        and give focus to password entry field.
+        '''
         self.user=user
+        self._set_title(create=False)
 
-        # TODO: update the title with the username
-        #self._set_title()
-
+        self.password.set_text('')
         self.password.grab_focus()
 
     def delete_user(self, *args):

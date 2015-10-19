@@ -21,6 +21,9 @@ case "$1" in
         # Allow the greeter to run kano-greeter-account for Kano World sync
         sed -i '$a%lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-greeter-account' "$kano_init_sudoers"
 
+        # Allow users to switch to virtual console terminals from the greeter
+        sed -i '$a%lightdm    ALL=(root) NOPASSWD: /bin/chvt' "$kano_init_sudoers"
+
         # Fix permisssions so that lightdm can start the greeter (this actually seems to be a bug in lightm)
         chown lightdm:lightdm /var/lib/lightdm
 
