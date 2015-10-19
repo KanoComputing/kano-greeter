@@ -60,10 +60,8 @@ class PasswordView(Gtk.Grid):
         Creates a Heading text widget, or updates it
         with the currently selected username.
         '''
-
-        # FIXME: Cannot assign NLS token mark to literals below
-        text_title='{}: Enter your password'.format(self.user)
-        text_description='If you haven\'t changed your password,\nuse "kano"'
+        text_title=_('{}: Enter your password').format(self.user)
+        text_description=_('If you haven\'t changed your password,\nuse "kano"')
         
         if create:
             title = Heading(text_title, text_description)
