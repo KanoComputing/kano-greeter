@@ -61,8 +61,8 @@ class PasswordView(Gtk.Grid):
         with the currently selected username.
         '''
         text_title=_('{}: Enter your password').format(self.user)
-        text_description=_('If you haven\'t changed your password,\nuse "kano"')
-        
+        text_description=_('If you haven\'t changed your\npassword, use "kano"')
+
         if create:
             title = Heading(text_title, text_description)
             return title
@@ -85,7 +85,7 @@ class PasswordView(Gtk.Grid):
 
         self.login_btn.start_spinner()
         Gtk.main_iteration_do(True)
-        
+
         self.greeter.authenticate(self.user)
 
         if self.greeter.get_is_authenticated():
