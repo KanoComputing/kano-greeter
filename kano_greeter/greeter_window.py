@@ -133,7 +133,7 @@ class GreeterWindow(ApplicationWindow):
             # FIXME: We do not reset the greeter in the newuser view
             # It will be done only when the local user account has been forced
             # so as to avoid LightDM freezes
-            (self.a, self.b, self.c) = self.login_with_kw_view._reset_greeter()
+            # (self.a, self.b, self.c) = self.login_with_kw_view._reset_greeter()
             self.switching = 3
 
         self.login_with_kw_view.grab_focus()
