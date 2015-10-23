@@ -6,9 +6,10 @@
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 #
 
-from gi.repository import Gtk
 
-import os
+from gi.repository import Gtk
+from gi.repository import LightDM
+
 import pwd
 
 from kano.logging import logger
@@ -18,6 +19,7 @@ from kano.gtk3.buttons import OrangeButton, KanoButton
 from kano.gtk3.kano_dialog import KanoDialog
 
 from kano_greeter.last_user import get_last_user
+
 
 class KanoUserList:
     def __init__(self):
@@ -30,11 +32,11 @@ class KanoUserList:
         Returns a list of interactive users on the system
         as reported by Unix /etc/password database
         '''
-        interactive_users=[]
-        system_users=pwd.getpwall()
+        interactive_users = []
+        system_users = pwd.getpwall()
 
         # special usernames to exlude from the list
-        exclude=('nobody')
+        exclude = ('nobody')
 
         for user in system_users:
             if user.pw_uid >= minimum_id and user.pw_name not in exclude:
@@ -44,31 +46,37 @@ class KanoUserList:
         return sorted(interactive_users, reverse=False)
 
 
-class UserList(ScrolledWindow):
-    HEIGHT = 300
-    WIDTH = 250
+class UserListView(Gtk.Grid):
+    HEIGHT = 250
+    WIDTH = 1  # not important
 
     def __init__(self):
-        ScrolledWindow.__init__(self)
+        Gtk.Grid.__init__(self)
 
-        self.apply_styling_to_widget()
+        self.get_style_context().add_class('password')
+        self.set_row_spacing(10)
 
-        self.set_size_request(self.WIDTH, self.HEIGHT)
+        title = Heading(_('Select Account'),
+                        _('Log in to which account?'))
+        self.attach(title.container, 0, 0, 2, 1)
 
+        self.scrolled_window = ScrolledWindow()
+        self.scrolled_window.set_size_request(self.WIDTH, self.HEIGHT)
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.box.set_spacing(10)
-        self.add(self.box)
-
-        title = Heading(_('Select Account'), _('Log in to which account?'))
-        self.box.pack_start(title.container, False, False, 0)
+        self.scrolled_window.add(self.box)
+        self.attach(self.scrolled_window, 0, 1, 2, 1)
 
         self.last_username = get_last_user()
-
         self._populate()
 
-        add_account_btn = OrangeButton(_('Add Account'))
-        add_account_btn.connect('clicked', self.add_account)
-        self.box.pack_start(add_account_btn, False, False, 0)
+        self.add_account_btn = OrangeButton(_('Add Account'))
+        self.add_account_btn.connect('clicked', self._btn_add_account_pressed)
+        self.attach(self.add_account_btn, 0, 2, 1, 1)
+
+        self.shutdown_btn = OrangeButton(_('Shutdown'))
+        self.shutdown_btn.connect('clicked', self._btn_shutdown_pressed)
+        self.attach(self.shutdown_btn, 1, 2, 1, 1)
 
     def _populate(self):
         # Populate list
@@ -83,10 +91,31 @@ class UserList(ScrolledWindow):
         if username == self.last_username:
             user.grab_focus()
 
-    def add_account(self, control):
+    def _btn_add_account_pressed(self, event=None, button=None):
         logger.debug('opening new user dialog')
         win = self.get_toplevel()
         win.go_to_newuser()
+
+    def _btn_shutdown_pressed(self, event=None, button=None):
+        shutdown_dialog = KanoDialog(title_text='Shutting down..',
+                                     description_text='Are you sure you want to shutdown your Kano now?',
+                                     button_dict=[
+                                         {
+                                             'label': _('Cancel').upper(),
+                                             'color': 'green',
+                                             'return_value': False
+                                         },
+                                         {
+                                             'label': _('SHUTDOWN').upper(),
+                                             'color': 'orange',
+                                             'return_value': True
+                                         }
+                                     ])
+        shutdown_dialog.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        poweroff = shutdown_dialog.run()
+
+        if poweroff:
+            LightDM.shutdown()
 
 
 class User(KanoButton):
