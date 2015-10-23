@@ -64,6 +64,8 @@ class UserListView(Gtk.Grid):
         self.scrolled_window.set_size_request(self.WIDTH, self.HEIGHT)
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.box.set_spacing(10)
+        self.box.set_margin_left(10)
+        self.box.set_margin_right(10)
         self.scrolled_window.add(self.box)
         self.attach(self.scrolled_window, 0, 1, 2, 1)
 
