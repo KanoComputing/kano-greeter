@@ -17,7 +17,7 @@ from kano.gtk3.application_window import ApplicationWindow
 from kano.gtk3.kano_dialog import KanoDialog
 from kano.gtk3.buttons import OrangeButton
 
-from kano_greeter.user_list import UserList
+from kano_greeter.user_list import UserListView
 from kano_greeter.password_view import PasswordView
 from kano_greeter.newuser_view import NewUserView
 from kano_greeter.login_with_kw_view import LoginWithKanoWorldView
@@ -61,7 +61,7 @@ class GreeterWindow(ApplicationWindow):
 
         self.top_bar.set_prev_callback(self._back_cb)
 
-        self.user_list = UserList()
+        self.user_list = UserListView()
 
         self.go_to_users()
 
