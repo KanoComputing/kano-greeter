@@ -2,8 +2,8 @@
 
 # kano-greeter-account
 #
-# Copyright (C) 2015 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+# Copyright (C) 2015-2016 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Script to create a local Unix user account and force password
 # Called from Kano Greeter UI via sudo.
@@ -58,7 +58,7 @@ def login_kano_world(unix_username, world_username, world_password):
 
     sync_cmd = 'su - {} -c "/usr/bin/kano-sync --sync -s"'.format(unix_username)
     sync_restore_cmd = 'su - {} -c "/usr/bin/kano-sync --restore -s"'.format(unix_username)
-        
+
     _, _, rc1 = run_cmd(sync_cmd)
     _, _, rc2 = run_cmd(sync_cmd)
     _, _, rc3 = run_cmd(sync_restore_cmd)
@@ -70,7 +70,7 @@ def login_kano_world(unix_username, world_username, world_password):
 
 def create_user(username, password, world_username):
     DEFAULT_USER_GROUPS = "tty,adm,dialout,cdrom,audio,users,sudo,video,games," + \
-                          "plugdev,input,kanousers"    
+                          "plugdev,input,kanousers,i2c"
 
     # User already exists, force password and stop here
     if user_exists(username):
