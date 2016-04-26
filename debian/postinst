@@ -6,7 +6,7 @@
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 #
 
-lightdm_config=lightdm.conf
+lightdm_config=/etc/lightdm/lightdm.conf
 tmp_sudoers=/tmp/kano-greeter_conf
 
 case "$1" in
