@@ -6,23 +6,27 @@
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 #
 
-lightdm_config=/etc/lightdm/lightdm.conf
-kano_init_sudoers=/etc/sudoers.d/kano-init_conf
+lightdm_config=lightdm.conf
+tmp_sudoers=/tmp/kano-greeter_conf
 
 case "$1" in
     configure)
 
-        # Switch to use the Kano Greeter
+        # Tell Lightdm to switch to use the Kano Greeter
         sed -i 's/^#*\(greeter-session\=\).*/\1kano-greeter/' "$lightdm_config"
 
         # Allow the greeter to run kano-init
-        sed -i '$a%lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-init' "$kano_init_sudoers"
+        echo "lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-init" > $tmp_sudoers
 
         # Allow the greeter to run kano-greeter-account for Kano World sync
-        sed -i '$a%lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-greeter-account' "$kano_init_sudoers"
+        echo "lightdm    ALL=(root) NOPASSWD: /usr/bin/kano-greeter-account" >> $tmp_sudoers
 
         # Allow users to switch to virtual console terminals from the greeter
-        sed -i '$a%lightdm    ALL=(root) NOPASSWD: /bin/chvt' "$kano_init_sudoers"
+        echo "%lightdm    ALL=(root) NOPASSWD: /bin/chvt" >> $tmp_sudoers
+
+        # Apply the new Sudo rules file
+        chmod 0440 $tmp_sudoers
+        mv $tmp_sudoers /etc/sudoers.d/
 
         # Fix permisssions so that lightdm can start the greeter (this actually seems to be a bug in lightm)
         chown lightdm:lightdm /var/lib/lightdm
