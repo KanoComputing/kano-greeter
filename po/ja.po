@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kano-greeter\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-12 22:57+0900\n"
+"POT-Creation-Date: 2016-07-06 08:32+0900\n"
 "PO-Revision-Date: 2016-01-12 22:58+0900\n"
 "Last-Translator: Choppin Antoine <antoine@japonophile.com>\n"
 "Language-Team: Japanese\n"
@@ -39,6 +39,7 @@ msgstr ""
 "\"kano\"を使って下さい"
 
 #: ../kano_greeter/password_view.py:107
+#: ../kano_greeter/login_with_kw_view.py:150
 msgid "Incorrect password (The default is \"kano\")"
 msgstr "パスワードが違います（初期パスワードは\"kano\"です）"
 
@@ -134,3 +135,23 @@ msgstr "リブートが必要になります"
 #: ../kano_greeter/newuser_view.py:65
 msgid "Create"
 msgstr "作成"
+
+#: ../kano_greeter/login_with_kw_view.py:37
+msgid "Login with Kano World"
+msgstr "Kanoワールドのアカウントでログイン"
+
+#: ../kano_greeter/login_with_kw_view.py:38
+msgid "Enter your Kano World details."
+msgstr "Kanoワールドアカウントの詳細を記入してください。"
+
+#: ../kano_greeter/login_with_kw_view.py:50
+msgid "LOGIN"
+msgstr "ログイン"
+
+#: ../kano_greeter/login_with_kw_view.py:174
+msgid "Error Synchronizing account"
+msgstr "アカウントの同期に失敗しました"
+
+#: ../kano_greeter/login_with_kw_view.py:191
+msgid "OK"
+msgstr "了解"
