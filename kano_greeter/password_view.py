@@ -19,6 +19,8 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 from kano_greeter.user_list import KanoUserList
 
+# Placeholder function to translate encoding only when necessary
+def encode(x): return x.encode('utf-8') if isinstance(x,unicode) else x
 
 class PasswordView(Gtk.Grid):
 
@@ -120,7 +122,7 @@ class PasswordView(Gtk.Grid):
             logger.info('Login failed')
 
     def _auth_error_cb(self, text, message_type=None):
-        logger.info('There was an error logging in: {}'.format(text))
+        logger.info('There was an error logging in: {}'.format(encode(text)))
 
         self.greeter.cancel_authentication()
 
