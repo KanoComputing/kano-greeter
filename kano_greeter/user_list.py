@@ -99,8 +99,8 @@ class UserListView(Gtk.Grid):
         win.go_to_newuser()
 
     def _btn_shutdown_pressed(self, event=None, button=None):
-        shutdown_dialog = KanoDialog(title_text='Shutting down..',
-                                     description_text='Are you sure you want to shutdown your Kano now?',
+        shutdown_dialog = KanoDialog(title_text=_('Shutting down..'),
+                                     description_text=_('Are you sure you want to shutdown your Kano now?'),
                                      button_dict=[
                                          {
                                              'label': _('Cancel').upper(),

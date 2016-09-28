@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kano-greeter\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-28 14:15+0200\n"
+"POT-Creation-Date: 2016-09-28 15:34+0200\n"
 "PO-Revision-Date: 2016-09-28 14:16+0200\n"
 "Last-Translator:  <dev@kano.me>\n"
 "Language-Team: Argentinian\n"
@@ -19,67 +19,67 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../kano_greeter/greeter_window.py:38 ../kano_greeter/greeter_window.py:55
-#: ../kano_greeter/password_view.py:46
+#: ../kano_greeter/password_view.py:48
 msgid "Login"
 msgstr "Ingresar"
 
-#: ../kano_greeter/password_view.py:54
+#: ../kano_greeter/password_view.py:56
 msgid "Remove Account"
 msgstr "Eliminar cuenta"
 
-#: ../kano_greeter/password_view.py:63
+#: ../kano_greeter/password_view.py:65
 msgid "{}: Enter your password"
 msgstr "{}: Ingresa tu contraseña"
 
-#: ../kano_greeter/password_view.py:64
+#: ../kano_greeter/password_view.py:66
 msgid ""
 "If you haven't changed your\n"
 "password, use \"kano\""
 msgstr "Si no cambiaste tu contraseña, usa \"kano\""
 
-#: ../kano_greeter/password_view.py:107
+#: ../kano_greeter/password_view.py:109
 #: ../kano_greeter/login_with_kw_view.py:150
 msgid "Incorrect password (The default is \"kano\")"
 msgstr "Contraseña incorrecta (Por defecto es \"kano\")"
 
-#: ../kano_greeter/password_view.py:131
+#: ../kano_greeter/password_view.py:133
 msgid "Error Logging In"
 msgstr "Error en ingreso"
 
-#: ../kano_greeter/password_view.py:157
+#: ../kano_greeter/password_view.py:159
 msgid "Are you sure you want to delete this account?"
 msgstr "Estás seguro que quieres eliminar esta cuenta?"
 
-#: ../kano_greeter/password_view.py:158
+#: ../kano_greeter/password_view.py:160
 msgid "Enter {}'s password - A reboot will be required"
 msgstr "Ingresa la contraseña de {} - Será necesario reiniciar"
 
-#: ../kano_greeter/password_view.py:163 ../kano_greeter/user_list.py:106
+#: ../kano_greeter/password_view.py:165 ../kano_greeter/user_list.py:106
 #: ../kano_greeter/newuser_view.py:60
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: ../kano_greeter/password_view.py:168
+#: ../kano_greeter/password_view.py:170
 msgid "Ok"
 msgstr "Bien"
 
-#: ../kano_greeter/password_view.py:181
+#: ../kano_greeter/password_view.py:183
 msgid "Please enter the password for user {}"
 msgstr "Por favor ingresa la contraseña del usuario {}"
 
-#: ../kano_greeter/password_view.py:191
+#: ../kano_greeter/password_view.py:193
 msgid "User {} scheduled for removal"
 msgstr "El usuario {} se ha marcado para ser eliminado"
 
-#: ../kano_greeter/password_view.py:192
+#: ../kano_greeter/password_view.py:194
 msgid "Press OK to reboot"
 msgstr "Presiona Bien para reiniciar"
 
-#: ../kano_greeter/password_view.py:199
+#: ../kano_greeter/password_view.py:201
 msgid "Incorrect password for user {}"
 msgstr "Contraseña incorrecta para el usuario {}"
 
-#: ../kano_greeter/password_view.py:204
+#: ../kano_greeter/password_view.py:206
 msgid "Could not delete account {}"
 msgstr "No se pudo eliminar la cuenta {}"
 
@@ -99,6 +99,14 @@ msgstr "Añadir Cuenta"
 msgid "Shutdown"
 msgstr "Apagar"
 
+#: ../kano_greeter/user_list.py:102
+msgid "Shutting down.."
+msgstr "Apagando..."
+
+#: ../kano_greeter/user_list.py:103
+msgid "Are you sure you want to shutdown your Kano now?"
+msgstr "Estás seguro que quieres apagar tu Kano ahora?"
+
 #: ../kano_greeter/user_list.py:111
 msgid "SHUTDOWN"
 msgstr "APAGAR"
@@ -111,7 +119,8 @@ msgstr "Añadir nueva cuenta"
 msgid ""
 "Login with Kano World\n"
 "or create a new account."
-msgstr "Ingresar en Mundo Kano\n"
+msgstr ""
+"Ingresar en Mundo Kano\n"
 "o crear una nueva cuenta"
 
 #: ../kano_greeter/newuser_view.py:38
@@ -142,9 +151,25 @@ msgstr "Ingresar en Mundo Kano"
 msgid "Enter your Kano World details."
 msgstr "Ingresa tu información de acceso a Mundo Kano"
 
+#: ../kano_greeter/login_with_kw_view.py:42
+msgid "username"
+msgstr "usuario"
+
+#: ../kano_greeter/login_with_kw_view.py:47
+msgid "password"
+msgstr "contraseña"
+
 #: ../kano_greeter/login_with_kw_view.py:50
 msgid "LOGIN"
 msgstr "INGRESAR"
+
+#: ../kano_greeter/login_with_kw_view.py:93
+msgid "Failed to authenticate to Kano World"
+msgstr "No se pudo autenticar a Mundo Kano"
+
+#: ../kano_greeter/login_with_kw_view.py:114
+msgid "Could not create local user"
+msgstr "No se pudo crear el usuario local"
 
 #: ../kano_greeter/login_with_kw_view.py:174
 msgid "Error Synchronizing account"
