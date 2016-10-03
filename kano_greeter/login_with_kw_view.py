@@ -39,12 +39,12 @@ class LoginWithKanoWorldView(Gtk.Grid):
         self.attach(title.container, 0, 0, 1, 1)
 
         self.username = Gtk.Entry()
-        self.username.set_placeholder_text('username')
+        self.username.set_placeholder_text(_('username'))
         self.attach(self.username, 0, 1, 1, 1)
 
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
-        self.password.set_placeholder_text('password')
+        self.password.set_placeholder_text(_('password'))
         self.attach(self.password, 0, 2, 1, 1)
 
         self.login_btn = KanoButton(_('LOGIN'))
@@ -90,7 +90,7 @@ class LoginWithKanoWorldView(Gtk.Grid):
         if not loggedin:
             # Kano world auth unauthorized
             # FIXME: Localizing the below string fails with an exception
-            GObject.idle_add(self._error_message_box, 'Failed to authenticate to Kano World', reason)
+            GObject.idle_add(self._error_message_box, _('Failed to authenticate to Kano World'), reason)
             return
         else:
             # We are authenticated to Kano World: proceed with forcing local user
@@ -99,7 +99,7 @@ class LoginWithKanoWorldView(Gtk.Grid):
                 # Create the local unix user, bypass kano-init-flow, login & sync to Kano World
                 createuser_cmd = 'sudo /usr/bin/kano-greeter-account {} {} {}'.format(
                     self.unix_username, self.unix_password, self.world_username)
-                _, _, rc = run_cmd(createuser_cmd)
+                procout, procerr, rc = run_cmd(createuser_cmd)
                 if rc == 0:
                     logger.debug('Local user created correctly: {}'.format(self.unix_username))
                 elif rc == 1:
@@ -111,7 +111,7 @@ class LoginWithKanoWorldView(Gtk.Grid):
 
             if not created:
                 logger.debug('Error creating new local user: {}'.format(self.unix_username))
-                GObject.idle_add(self._error_message_box, "Could not create local user", rc)
+                GObject.idle_add(self._error_message_box, _('Could not create local user'), rc)
                 return
 
             # Tell Lidghtdm to proceed with login session using the new user

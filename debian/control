@@ -3,11 +3,11 @@ Maintainer: Team Kano <dev@kano.me>
 Section: x11
 Priority: optional
 Standards-Version: 3.9.4
-Build-Depends: debhelper (>=9.0.0), python-setuptools, gettext
+Build-Depends: debhelper (>=9.0.0), dh-python, python-setuptools, gettext
 
 Package: kano-greeter
 Architecture: all
-Depends: ${misc:Depends}, kdesk, kano-toolset (>= 1.2-5), gir1.2-gtk-3.0,
+Depends: ${misc:Depends}, kdesk, kano-toolset (>= 3.7.0), gir1.2-gtk-3.0,
          gir1.2-lightdm-1, kano-init, kano-profile, kano-i18n
 Replaces: kano-desktop (<< 1.1-4.20141110)
 Breaks: kano-desktop (<< 1.1-4.20141110)
