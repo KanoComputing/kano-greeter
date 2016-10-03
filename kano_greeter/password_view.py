@@ -19,9 +19,6 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 from kano_greeter.user_list import KanoUserList
 
-# Placeholder function to translate encoding only when necessary
-def encode(x): return x.encode('utf-8') if isinstance(x,unicode) else x
-
 class PasswordView(Gtk.Grid):
 
     def __init__(self, user, greeter):
@@ -95,7 +92,7 @@ class PasswordView(Gtk.Grid):
             start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
-        logger.debug('Need to show prompt: {}'.format(text))
+        logger.debug(u'Need to show prompt: {}'.format(text))
 
         if _greeter.get_in_authentication():
             logger.debug('Sending password to LightDM')
@@ -122,7 +119,7 @@ class PasswordView(Gtk.Grid):
             logger.info('Login failed')
 
     def _auth_error_cb(self, text, message_type=None):
-        logger.info('There was an error logging in: {}'.format(encode(text)))
+        logger.info(u'There was an error logging in: {}'.format(text))
 
         self.greeter.cancel_authentication()
 
@@ -202,7 +199,7 @@ class PasswordView(Gtk.Grid):
                 error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
                 error.run()
         except Exception as e:
-            logger.error('Error deleting account {} - {}'.format(self.user, str(e)))
+            logger.error(u'Error deleting account {} - {}'.format(self.user, str(e)))
             error = KanoDialog(title_text = _('Could not delete account {}'.format(self.user)))
             error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
             error.run()
