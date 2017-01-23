@@ -2,4 +2,5 @@
 
 %:
 	cd po && make
+	cd po && make messages.pot
 	dh $@ --with python2

@@ -12,3 +12,9 @@ Depends: ${misc:Depends}, kdesk, kano-toolset (>= 3.7.0), gir1.2-gtk-3.0,
 Replaces: kano-desktop (<< 1.1-4.20141110)
 Breaks: kano-desktop (<< 1.1-4.20141110)
 Description: Python greeter for Kano OS
+
+Package: kano-greeter-i18n-orig
+Architecture: armhf
+# not really armhf. See https://github.com/KanoComputing/peldins/wiki/Multiarch-note
+Description: Data for working on translations of kano-greeter
+Multi-Arch: foreign
