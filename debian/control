@@ -14,7 +14,6 @@ Breaks: kano-desktop (<< 1.1-4.20141110)
 Description: Python greeter for Kano OS
 
 Package: kano-greeter-i18n-orig
-Architecture: armhf
-# not really armhf. See https://github.com/KanoComputing/peldins/wiki/Multiarch-note
+Architecture: all
 Description: Data for working on translations of kano-greeter
 Multi-Arch: foreign
