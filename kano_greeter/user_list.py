@@ -36,7 +36,7 @@ class KanoUserList:
         system_users = pwd.getpwall()
 
         # special usernames to exlude from the list
-        exclude = ('nobody')
+        exclude = ['nobody']
 
         for user in system_users:
             if user.pw_uid >= minimum_id and user.pw_name not in exclude:
