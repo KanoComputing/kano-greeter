@@ -1,15 +1,13 @@
-#!/usr/bin/env python
-
 # password_view.py
 #
-# Copyright (C) 2014 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
-#
+# Copyright (C) 2014-2018 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
+
+
+import os
 
 from gi.repository import Gtk
 from gi.repository import LightDM
-
-import os
 
 from kano.logging import logger
 from kano.gtk3.buttons import KanoButton, OrangeButton
@@ -19,6 +17,7 @@ from kano.gtk3.kano_dialog import KanoDialog
 from kano_greeter.last_user import set_last_user
 from kano_greeter.user_list import KanoUserList
 
+
 class PasswordView(Gtk.Grid):
 
     def __init__(self, user, greeter):
@@ -27,7 +26,7 @@ class PasswordView(Gtk.Grid):
         self.get_style_context().add_class('password')
         self.set_row_spacing(10)
 
-        self.greeter=greeter
+        self.greeter = greeter
 
         self.user = user
         self.title = self._set_title()
@@ -48,7 +47,7 @@ class PasswordView(Gtk.Grid):
 
         # Protect against removing the last Kano user
         # so you do not get locked out from logging into the Kit
-        system_users=KanoUserList().get_users()
+        system_users = KanoUserList().get_users()
         if len(system_users) > 1:
             delete_account_btn = OrangeButton(_('Remove Account'))
             delete_account_btn.connect('clicked', self.delete_user)
@@ -59,8 +58,8 @@ class PasswordView(Gtk.Grid):
         Creates a Heading text widget, or updates it
         with the currently selected username.
         '''
-        text_title=_('{}: Enter your password').format(self.user)
-        text_description=_('If you haven\'t changed your\npassword, use "kano"')
+        text_title = _('{}: Enter your password').format(self.user)
+        text_description = _('If you haven\'t changed your\npassword, use "kano"')
 
         if create:
             title = Heading(text_title, text_description)
@@ -89,7 +88,9 @@ class PasswordView(Gtk.Grid):
 
         if self.greeter.get_is_authenticated():
             logger.debug('User is already authenticated, starting session')
-            start_session()
+            # FIXME: The line below was randomly spotted with static analysis
+            # and disabled to avoid a traceback. Please investigate.
+            # start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug(u'Need to show prompt: {}'.format(text))
@@ -104,7 +105,6 @@ class PasswordView(Gtk.Grid):
         if not _greeter.get_is_authenticated():
             logger.warn('Could not authenticate user {}'.format(self.user))
             self._auth_error_cb(_('Incorrect password (The default is "kano")'))
-
             return
 
         logger.info(
@@ -127,9 +127,11 @@ class PasswordView(Gtk.Grid):
         self.password.set_text('')
 
         win = self.get_toplevel()
-        error = KanoDialog(title_text=_('Error Logging In'),
-                           description_text=text,
-                           parent_window=win)
+        error = KanoDialog(
+            title_text=_('Error Logging In'),
+            description_text=text,
+            parent_window=win
+        )
         error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         error.run()
         win.go_to_users()
@@ -139,14 +141,19 @@ class PasswordView(Gtk.Grid):
         Update username title, clear previous password,
         and give focus to password entry field.
         '''
-        self.user=user
+        self.user = user
         self._set_title(create=False)
 
         self.password.set_text('')
         self.password.grab_focus()
 
     def delete_user(self, *args):
-        import pam
+        # When this module was transitioned from pip (0.1.4) to deb (0.4.2-13.1),
+        # the version in Raspbian contained an all caps name for the module.
+        try:
+            import PAM as pam
+        except ImportError:
+            import pam
 
         password_input = Gtk.Entry()
         password_input.set_visibility(False)
@@ -172,34 +179,43 @@ class PasswordView(Gtk.Grid):
 
         confirm.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
-        # Kano Dialog will return False if cancel button is clicked, or text from the entry field if Ok
-        response=confirm.run()
-        if response == False:
+        # Kano Dialog will return False if cancel button is clicked, or text
+        # from the entry field if Ok
+        response = confirm.run()
+        if not response:
             return
         elif type(response) == str and not len(response):
-            error = KanoDialog(title_text = _('Please enter the password for user {}'.format(self.user)))
+            error = KanoDialog(
+                title_text=_('Please enter the password for user {}'.format(self.user))
+            )
             error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
             error.run()
             return
         else:
-            password=response
+            password = response
 
         # Authenticate user and schedule removal. Protect against unknown troubles.
         try:
             if pam.authenticate(self.user, password):
-                info = KanoDialog(title_text = _('User {} scheduled for removal'.format(self.user)), \
-                                  description_text = _('Press OK to reboot'))
+                info = KanoDialog(
+                    title_text=_('User {} scheduled for removal'.format(self.user)),
+                    description_text=_('Press OK to reboot')
+                )
                 info.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
                 info.run()
 
                 os.system('sudo kano-init schedule delete-user "{}"'.format(self.user))
                 LightDM.restart()
             else:
-                error = KanoDialog(title_text = _('Incorrect password for user {}'.format(self.user)))
+                error = KanoDialog(
+                    title_text=_('Incorrect password for user {}'.format(self.user))
+                )
                 error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
                 error.run()
         except Exception as e:
             logger.error(u'Error deleting account {} - {}'.format(self.user, str(e)))
-            error = KanoDialog(title_text = _('Could not delete account {}'.format(self.user)))
+            error = KanoDialog(
+                title_text=_('Could not delete account {}'.format(self.user))
+            )
             error.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
             error.run()
