@@ -1,21 +1,16 @@
-#!/usr/bin/env python
-
 # greeter-window.py
 #
-# Copyright (C) 2014 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
-#
+# Copyright (C) 2014-2018 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
+
 
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import LightDM
 
-from kano.logging import logger
 from kano.gtk3.apply_styles import apply_common_to_screen
 from kano.gtk3.top_bar import TopBar
 from kano.gtk3.application_window import ApplicationWindow
-from kano.gtk3.kano_dialog import KanoDialog
-from kano.gtk3.buttons import OrangeButton
 
 from kano_greeter.user_list import UserListView
 from kano_greeter.password_view import PasswordView
@@ -140,4 +135,3 @@ class GreeterWindow(ApplicationWindow):
 
     def _back_cb(self, event, button):
         self.go_to_users()
-
