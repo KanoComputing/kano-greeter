@@ -146,7 +146,12 @@ class PasswordView(Gtk.Grid):
         self.password.grab_focus()
 
     def delete_user(self, *args):
-        import pam
+        # When this module was transitioned from pip (0.1.4) to deb (0.4.2-13.1), the
+        # version in Raspbian contained an all caps name for the module.
+        try:
+            import PAM as pam
+        except:
+            import pam
 
         password_input = Gtk.Entry()
         password_input.set_visibility(False)
