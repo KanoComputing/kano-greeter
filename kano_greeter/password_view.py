@@ -88,7 +88,9 @@ class PasswordView(Gtk.Grid):
 
         if self.greeter.get_is_authenticated():
             logger.debug('User is already authenticated, starting session')
-            start_session()
+            # FIXME: The line below was randomly spotted with static analysis
+            # and disabled to avoid a traceback. Please investigate.
+            # start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug(u'Need to show prompt: {}'.format(text))
