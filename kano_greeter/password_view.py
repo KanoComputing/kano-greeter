@@ -84,13 +84,10 @@ class PasswordView(Gtk.Grid):
         self.login_btn.start_spinner()
         Gtk.main_iteration_do(True)
 
+        # The call below will simply initiate the login flow.
+        # The greeter library will inform us through callbacks
+        # See: http://web.mit.edu/Source/debathena/config/lightdm-config/debian/debathena-lightdm-greeter
         self.greeter.authenticate(self.user)
-
-        if self.greeter.get_is_authenticated():
-            logger.debug('User is already authenticated, starting session')
-            # FIXME: The line below was randomly spotted with static analysis
-            # and disabled to avoid a traceback. Please investigate.
-            # start_session()
 
     def _send_password_cb(self, _greeter, text, prompt_type):
         logger.debug(u'Need to show prompt: {}'.format(text))
