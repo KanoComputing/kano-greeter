@@ -37,6 +37,8 @@ if __name__ == '__main__':
     try:
         # Refresh the wallpaper
         os.system('kdesk -w')
+        # ensure screen flipping is applied')
+        os.system('/usr/share/kano-peripherals/scripts/flip_xorg.sh')
 
         GObject.threads_init()
 

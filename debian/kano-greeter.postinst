@@ -34,6 +34,9 @@ case "$1" in
         # Add the lightdm user to the shadow group, so that he can authenticate system users via PAM
         usermod -a -G shadow lightdm
 
+        # allow to query screen flip:
+        usermod -a -G video lightdm
+
         ;;
 esac
 
