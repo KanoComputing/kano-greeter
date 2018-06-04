@@ -8,7 +8,7 @@ Build-Depends: debhelper (>=9.0.0), dh-python, python-setuptools, gettext, pytho
 Package: kano-greeter
 Architecture: all
 Depends: ${misc:Depends}, kdesk, kano-toolset (>= 3.7.0), gir1.2-gtk-3.0,
-         gir1.2-lightdm-1, kano-init, kano-profile, kano-i18n, python
+         gir1.2-lightdm-1, kano-init, kano-profile, kano-i18n, python, kano-touch-support
 Replaces: kano-desktop (<< 1.1-4.20141110)
 Breaks: kano-desktop (<< 1.1-4.20141110)
 Description: Python greeter for Kano OS
